@@ -115,6 +115,7 @@ md2Html(content, $("#content"), function(html) {
     $("pre").addClass("prettyprint linenums");
     prettyPrint();
     initNav();
+    if (window.initBlogHeadingAnchors) initBlogHeadingAnchors("#content");
     weixin();
 });
 </script>

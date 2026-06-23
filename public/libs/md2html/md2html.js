@@ -203,7 +203,7 @@ listStr=addAnchors(listStr);listStr=listStr.replace(/\n{2,}(?=\\x03)/,"\n");list
 	    }
 
 	    var utils = {};
-	    var nonWordChars = new RegExp('[^\\p{L}\\p{N}-]', 'g');
+	    var nonWordChars = new RegExp('[^\\p{L}\\p{N}-]', 'gu');
 	    utils.slugify = function(text) {
 	        return text.toLowerCase().replace(/\s/g, '-') // Replace spaces with -
 	            .replace(nonWordChars, '') // Remove all non-word chars
