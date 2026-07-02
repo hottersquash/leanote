@@ -233,7 +233,7 @@ define("tinymce/pasteplugin/Clipboard", [
 				if(reIsOk(ret)) {
 					// 将图片替换之
 					// var src = urlPrefix + "/" + ret.Item;
-					var src = urlPrefix + "/api/file/getImage?fileId=" + ret.Id;
+					var src = ret.Url || (urlPrefix + "/api/file/getImage?fileId=" + ret.Id);
 					var dom = editor.dom;
 					for(var i in ids) {
 						var id = ids[i];
@@ -592,7 +592,7 @@ define("tinymce/pasteplugin/Clipboard", [
 				    		}
 				    		// 这里, 如果图片宽度过大, 这里设置成500px
 							var urlPrefix = UrlPrefix; // window.location.protocol + "//" + window.location.host;
-							var src = urlPrefix + "/file/outputImage?fileId=" + re.Id;
+							var src = re.Url || (urlPrefix + "/file/outputImage?fileId=" + re.Id);
 							getImageSize(src, function(wh) {
 								// life 4/25
 								if(wh && wh.width) {

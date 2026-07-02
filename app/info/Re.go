@@ -8,6 +8,7 @@ type Re struct {
 	Code int
 	Msg  string
 	Id   string
+	Url  string
 	List interface{}
 	Item interface{}
 }

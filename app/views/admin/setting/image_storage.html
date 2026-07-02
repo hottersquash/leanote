@@ -1,0 +1,87 @@
+{{template "admin/top.html" .}}
+<div class="m-b-md"> <h3 class="m-b-none">Image Storage</h3></div>
+
+<div class="row">
+
+<div class="col-sm-8">
+	<form id="image_storage_form">
+		<section class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group">
+					<label>Provider</label>
+					<select class="form-control" name="provider">
+						<option value="local" {{if eq .str.imageStorageProvider "local"}}selected{{end}}>Local</option>
+						<option value="huawei_obs" {{if eq .str.imageStorageProvider "huawei_obs"}}selected{{end}}>Huawei Cloud OBS</option>
+						<option value="aliyun_oss" {{if eq .str.imageStorageProvider "aliyun_oss"}}selected{{end}}>Aliyun OSS (coming soon)</option>
+						<option value="tencent_cos" {{if eq .str.imageStorageProvider "tencent_cos"}}selected{{end}}>Tencent COS (coming soon)</option>
+						<option value="aws_s3" {{if eq .str.imageStorageProvider "aws_s3"}}selected{{end}}>AWS S3 (coming soon)</option>
+					</select>
+					Only note body images use this storage. Avatar, blog logo, albums, and attachments keep using local storage.
+				</div>
+				<div class="form-group">
+					<label>Bucket</label>
+					<input type="text" class="form-control" name="bucket" value="{{.str.imageStorageBucket}}" placeholder="leanote-images">
+				</div>
+				<div class="form-group">
+					<label>Endpoint</label>
+					<input type="text" class="form-control" name="endpoint" value="{{.str.imageStorageEndpoint}}" placeholder="obs.cn-north-4.myhuaweicloud.com">
+					Do not include the bucket name. Both https:// and plain host are accepted.
+				</div>
+				<div class="form-group">
+					<label>Region</label>
+					<input type="text" class="form-control" name="region" value="{{.str.imageStorageRegion}}" placeholder="cn-north-4">
+				</div>
+				<div class="form-group">
+					<label>Access Key</label>
+					<input type="text" class="form-control" name="accessKey" value="{{.str.imageStorageAccessKey}}">
+				</div>
+				<div class="form-group">
+					<label>Secret Key</label>
+					<input type="password" class="form-control" name="secretKey" value="{{.str.imageStorageSecretKey}}">
+				</div>
+				<div class="form-group">
+					<label>Public Base URL</label>
+					<input type="text" class="form-control" name="publicBaseUrl" value="{{.str.imageStoragePublicBaseUrl}}" placeholder="https://cdn.example.com">
+					Optional. If blank, Leanote builds URLs from bucket and endpoint.
+				</div>
+				<div class="form-group">
+					<label>Object Prefix</label>
+					<input type="text" class="form-control" name="objectPrefix" value="{{.str.imageStorageObjectPrefix}}" placeholder="leanote/images">
+					Optional. The user and date path will be appended below this prefix.
+				</div>
+			</div>
+
+			<footer class="panel-footer text-right bg-light lter">
+				<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+			</footer>
+		</section>
+	</form>
+</div>
+
+</div>
+
+{{template "admin/footer.html" .}}
+<script src="/public/admin/js/jquery-validation-1.13.0/jquery.validate.js"></script>
+<script>
+$(function() {
+	init_validator("#image_storage_form");
+
+	$("#submit").click(function(e){
+		e.preventDefault();
+		var t = this;
+		if($("#image_storage_form").valid()) {
+			$(t).button('loading');
+			ajaxPost("/adminSetting/imageStorage", getFormJsonData("image_storage_form"), function(ret){
+				$(t).button('reset');
+				if(!ret.Ok) {
+					art.alert(ret.Msg || "Save failed");
+				} else {
+					art.tips("Success");
+				}
+			});
+		}
+	});
+});
+</script>
+
+{{template "admin/end.html" .}}

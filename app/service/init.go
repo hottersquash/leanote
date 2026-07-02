@@ -27,6 +27,7 @@ var blogService, BlogS *BlogService
 var tokenService, TokenS *TokenService
 var noteImageService, NoteImageS *NoteImageService
 var fileService, FileS *FileService
+var imageStorageService, ImageStorageS *ImageStorageService
 var albumService, AlbumS *AlbumService
 var attachService, AttachS *AttachService
 var configService, ConfigS *ConfigService
@@ -52,6 +53,7 @@ func InitService() {
 	TokenS = &TokenService{}
 	NoteImageS = &NoteImageService{}
 	FileS = &FileService{}
+	ImageStorageS = &ImageStorageService{}
 	AlbumS = &AlbumService{}
 	AttachS = &AttachService{}
 	ConfigS = &ConfigService{}
@@ -75,6 +77,7 @@ func InitService() {
 	tokenService = TokenS
 	noteImageService = NoteImageS
 	fileService = FileS
+	imageStorageService = ImageStorageS
 	albumService = AlbumS
 	attachService = AttachS
 	configService = ConfigS

@@ -36,7 +36,7 @@ func (c File) UploadBlogLogo() revel.Result {
 func (c File) PasteImage(noteId string) revel.Result {
 	re := c.uploadImage("pasteImage", "")
 
-	if noteId != "" {
+	if noteId != "" && re.Ok && re.Url == "" {
 		userId := c.GetUserId()
 		note := noteService.GetNoteById(noteId)
 		if note.UserId != "" {
@@ -132,10 +132,6 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	}
 
 	dir := revel.BasePath + "/" + fileUrlPath
-	err := os.MkdirAll(dir, 0755)
-	if err != nil {
-		return re
-	}
 	// 生成新的文件名
 	filename := handel.Filename
 
@@ -177,6 +173,39 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 		return re
 	}
 
+	if isNoteBodyImageUpload(from, albumId) && imageStorageService.IsRemoteEnabled() {
+		publicUrl, objectKey, filesize, err := imageStorageService.PutNoteImage(userId, filename, data)
+		if err != nil {
+			resultMsg = err.Error()
+			return re
+		}
+
+		fileInfo := info.File{Name: filename,
+			Title: handel.Filename,
+			Path:  objectKey,
+			Size:  filesize}
+
+		id := bson.NewObjectId()
+		fileInfo.FileId = id
+		fileId = id.Hex()
+
+		Ok, resultMsg = fileService.AddImage(fileInfo, albumId, c.GetUserId(), from == "" || from == "pasteImage")
+		resultMsg = c.Message(resultMsg)
+		if Ok {
+			resultCode = 1
+			resultMsg = "Upload Success!"
+			re.Url = publicUrl
+		}
+
+		fileInfo.Path = ""
+		re.Item = fileInfo
+		return re
+	}
+
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return re
+	}
 	toPath := dir + "/" + filename
 	err = ioutil.WriteFile(toPath, data, 0777)
 	if err != nil {
@@ -262,6 +291,38 @@ func (c File) CopyHttpImage(src string) revel.Result {
 	// 生成上传路径
 	newGuid := NewGuid()
 	userId := c.GetUserId()
+
+	if imageStorageService.IsRemoteEnabled() {
+		data, err := netutil.GetContent(src)
+		if err != nil || len(data) == 0 {
+			re.Msg = "copy error"
+			return c.RenderJSON(re)
+		}
+		srcWithoutQuery := strings.Split(strings.Split(strings.Split(src, "?")[0], "#")[0], "!")[0]
+		_, ext := SplitFilename(srcWithoutQuery)
+		if ext == "" {
+			ext = ".png"
+		}
+		filename := newGuid + ext
+		publicUrl, objectKey, filesize, err := imageStorageService.PutNoteImage(userId, filename, data)
+		if err != nil {
+			re.Msg = err.Error()
+			return c.RenderJSON(re)
+		}
+
+		fileInfo := info.File{Name: filename,
+			Title: filename,
+			Path:  objectKey,
+			Size:  filesize}
+
+		id := bson.NewObjectId()
+		fileInfo.FileId = id
+		re.Id = id.Hex()
+		re.Url = publicUrl
+		re.Ok, re.Msg = fileService.AddImage(fileInfo, "", c.GetUserId(), true)
+		return c.RenderJSON(re)
+	}
+
 	// fileUrlPath := "files/" + Digest3(userId) + "/" + userId + "/" + Digest2(newGuid) + "/images"
 	fileUrlPath := "files/" + GetRandomFilePath(userId, newGuid) + "/images"
 	dir := revel.BasePath + "/" + fileUrlPath
@@ -290,4 +351,8 @@ func (c File) CopyHttpImage(src string) revel.Result {
 	re.Ok, re.Msg = fileService.AddImage(fileInfo, "", c.GetUserId(), true)
 
 	return c.RenderJSON(re)
+}
+
+func isNoteBodyImageUpload(from, albumId string) bool {
+	return albumId == "" && (from == "" || from == "pasteImage")
 }

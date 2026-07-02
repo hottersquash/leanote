@@ -178,7 +178,7 @@ define('editor_drop_paste', ['fileupload'], function() {
 	            if (data.result.Ok == true) {
 	                data.context.remove();
 	                // life
-	                var data2 = {src: "/api/file/getImage?fileId=" + data.result.Id}
+	                var data2 = {src: data.result.Url || ("/api/file/getImage?fileId=" + data.result.Id)}
 	                insertImage(data2);
 	            } else {
 	                data.context.empty();
@@ -343,7 +343,7 @@ define('editor_drop_paste', ['fileupload'], function() {
 	            if (data.result.Ok == true) {
 		    		// 这里, 如果图片宽度过大, 这里设置成500px
 		    		var re = data.result;
-					var src = "/api/file/getImage?fileId=" + re.Id;
+					var src = re.Url || ("/api/file/getImage?fileId=" + re.Id);
 
 					if(curNote && !curNote.IsMarkdown) {
 						data.process.replace(src);

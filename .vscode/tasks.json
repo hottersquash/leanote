@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "revel-prebuild",
+      "type": "shell",
+      "command": "revel",
+      "args": ["run", "-a", "."],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "${env:PATH};${env:USERPROFILE}\\go\\bin"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "."
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Revel running"
+        }
+      }
+    }
+  ]
+}

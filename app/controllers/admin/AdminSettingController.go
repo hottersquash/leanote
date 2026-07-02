@@ -140,3 +140,24 @@ func (c AdminSetting) UploadSize(uploadImageSize, uploadAvatarSize, uploadBlogLo
 	re.Ok = configService.UpdateGlobalStringConfig(c.GetUserId(), "uploadAttachSize", fmt.Sprintf("%v", uploadAttachSize))
 	return c.RenderJSON(re)
 }
+
+func (c AdminSetting) ImageStorage(provider, bucket, endpoint, region, accessKey, secretKey, publicBaseUrl, objectPrefix string) revel.Result {
+	re := info.NewRe()
+	userId := c.GetUserId()
+
+	provider = strings.TrimSpace(provider)
+	if provider == "" {
+		provider = "local"
+	}
+
+	re.Ok = true
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageProvider", provider) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageBucket", strings.TrimSpace(bucket)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageEndpoint", strings.TrimSpace(endpoint)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageRegion", strings.TrimSpace(region)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageAccessKey", strings.TrimSpace(accessKey)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageSecretKey", strings.TrimSpace(secretKey)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStoragePublicBaseUrl", strings.TrimSpace(publicBaseUrl)) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageObjectPrefix", strings.Trim(strings.TrimSpace(objectPrefix), "/")) && re.Ok
+	return c.RenderJSON(re)
+}

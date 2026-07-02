@@ -24,6 +24,7 @@ var suggestionService *service.SuggestionService
 var albumService *service.AlbumService
 var noteImageService *service.NoteImageService
 var fileService *service.FileService
+var imageStorageService *service.ImageStorageService
 var attachService *service.AttachService
 var configService *service.ConfigService
 var emailService *service.EmailService
@@ -123,6 +124,7 @@ func InitService() {
 	tokenService = service.TokenS
 	noteImageService = service.NoteImageS
 	fileService = service.FileS
+	imageStorageService = service.ImageStorageS
 	albumService = service.AlbumS
 	attachService = service.AttachS
 	pwdService = service.PwdS
