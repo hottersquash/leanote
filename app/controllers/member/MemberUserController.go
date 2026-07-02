@@ -38,3 +38,13 @@ func (c MemberUser) Avatar() revel.Result {
 	c.ViewArgs["globalConfigs"] = configService.GetGlobalConfigForUser()
 	return c.RenderTemplate("member/user/avatar.html")
 }
+
+func (c MemberUser) Lock() revel.Result {
+	c.SetUserInfo()
+	c.SetLocale()
+	userInfo := c.GetUserInfo()
+	userService.PrepareLockInfo(&userInfo)
+	c.ViewArgs["userInfo"] = userInfo
+	c.ViewArgs["title"] = c.Message("screenLockSettings")
+	return c.RenderTemplate("member/user/lock.html")
+}

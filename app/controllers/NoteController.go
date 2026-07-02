@@ -116,6 +116,7 @@ func (c Note) Index(noteId, online string) revel.Result {
 	//...
 	c.ViewArgs["isAdmin"] = configService.GetAdminUsername() == userInfo.Username
 
+	userService.PrepareLockInfo(&userInfo.User)
 	c.ViewArgs["userInfo"] = userInfo
 	c.ViewArgs["notebooks"] = notebooks
 	c.ViewArgs["shareNotebooks"] = shareNotebooks // note信息在notes列表中

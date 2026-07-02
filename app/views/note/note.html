@@ -19,6 +19,7 @@
 <link href="/public/md/themes/default.css" rel="stylesheet" />
 <!-- context-menu -->
 <link rel="stylesheet" href="/js/contextmenu/css/contextmenu-min.css?id=1" type="text/css" />
+<link rel="stylesheet" href="/css/screen_lock.css" type="text/css" />
 <script>
 var hash = location.hash;
 if(hash.indexOf("writing") >= 0) {
@@ -138,6 +139,20 @@ function log(o) {
 								<a>
 								<i class="fa fa-sun-o"></i> 
 								{{leaMsg . "Theme"}}
+								</a>
+							</li>
+							
+							<li role="presentation" id="lockNowBtn">
+								<a>
+								<i class="fa fa-lock"></i> 
+								{{msg . "screenLockNow"}}
+								</a>
+							</li>
+							
+							<li role="presentation">
+								<a href="/member/user/lock" target="_blank">
+								<i class="fa fa-cog"></i> 
+								{{msg . "screenLockSettings"}}
 								</a>
 							</li>
 							
@@ -836,6 +851,26 @@ function log(o) {
 		</div>
 	</div>
 </div>
+
+<!-- 锁屏 -->
+<div id="screenLockMask">
+	<div id="screenLockBg"></div>
+	<div class="screen-lock-panel">
+		<img id="screenLockAvatar" src="/images/blog/default_avatar.png" alt="" />
+		<div class="screen-lock-username" id="screenLockUsername"></div>
+		<div class="screen-lock-time" id="screenLockTime"></div>
+		<div id="screenLockMsg" class="alert alert-danger" style="display:none;"></div>
+		<div id="screenLockNoPwdTips" class="text-muted" style="display:none;">{{msg . "screenLockNoPasswordTips"}}</div>
+		<div id="screenLockPwdGroup">
+			<input type="password" class="form-control" id="screenLockPwd" placeholder="{{msg . "screenLockUnlockPassword"}}" />
+		</div>
+		<button type="button" class="btn btn-primary" id="screenLockUnlockBtn">{{msg . "screenLockUnlock"}}</button>
+		<div class="screen-lock-links">
+			<a href="/login?from=/note">{{msg . "screenLockRelogin"}}</a>
+			<a href="#" id="screenLockSettingsLink">{{msg . "screenLockSettings"}}</a>
+		</div>
+	</div>
+</div>
 <script>
 var LEA = {sPath: ''};
 LEA.locale = "{{.locale}}";
@@ -860,8 +895,10 @@ var tinyMCEPreInit = {base: '/public/tinymce', suffix: '.min'};
 <script src="/tinymce/tinymce.full.min.js"></script>
 <script src="/public/libs/ace/ace.js"></script>
 <script src="/js/app.min.js"></script>
+<script src="/js/app/screen_lock.js"></script>
 <script>
 initPage();
+initScreenLock();
 // 当tinymce.dev.js时, 请注释require
 window.require = {
     baseUrl: '/public',

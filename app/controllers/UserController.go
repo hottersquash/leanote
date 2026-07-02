@@ -158,3 +158,45 @@ func (c User) UpdateLeftIsMin(leftIsMin bool) revel.Result {
 	}
 	return c.RenderJSON(re)
 }
+
+// 锁屏设置
+func (c User) UpdateLockSettings(lockTimeoutMinutes int, lockWallpaper string) revel.Result {
+	re := info.NewRe()
+	if lockTimeoutMinutes < 0 {
+		lockTimeoutMinutes = 0
+	}
+	re.Ok = userService.UpdateLockSettings(c.GetUserId(), lockTimeoutMinutes, lockWallpaper)
+	return c.RenderJSON(re)
+}
+
+func (c User) SetLockPwd(oldLockPwd, lockPwd string) revel.Result {
+	re := info.NewRe()
+	if c.GetUserId() == configService.GetGlobalStringConfig("demoUserId") {
+		re.Msg = "cannotUpdateDemo"
+		return c.RenderRe(re)
+	}
+	re.Ok, re.Msg = userService.SetLockPwd(c.GetUserId(), oldLockPwd, lockPwd)
+	return c.RenderRe(re)
+}
+
+func (c User) DeleteLockPwd(loginPwd string) revel.Result {
+	re := info.NewRe()
+	if c.GetUserId() == configService.GetGlobalStringConfig("demoUserId") {
+		re.Msg = "cannotUpdateDemo"
+		return c.RenderRe(re)
+	}
+	if re.Ok, re.Msg = Vd("password", loginPwd); !re.Ok {
+		return c.RenderRe(re)
+	}
+	re.Ok, re.Msg = userService.DeleteLockPwd(c.GetUserId(), loginPwd)
+	return c.RenderRe(re)
+}
+
+func (c User) VerifyLockPwd(lockPwd string) revel.Result {
+	re := info.NewRe()
+	re.Ok = userService.VerifyLockPwd(c.GetUserId(), lockPwd)
+	if !re.Ok {
+		re.Msg = "lockPasswordError"
+	}
+	return c.RenderJSON(re)
+}

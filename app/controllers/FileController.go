@@ -75,6 +75,24 @@ func (c File) UploadAvatar() revel.Result {
 	return c.RenderJSON(re)
 }
 
+// 锁屏壁纸
+func (c File) UploadLockWallpaper() revel.Result {
+	re := c.uploadImage("lockWallpaper", "")
+
+	if re.Ok {
+		wallpaperPath := re.Id
+		if wallpaperPath != "" && !strings.HasPrefix(wallpaperPath, "/") {
+			wallpaperPath = "/" + wallpaperPath
+		}
+		re.Ok = userService.UpdateLockSettings(c.GetUserId(), -1, wallpaperPath)
+		if re.Ok {
+			re.Id = wallpaperPath
+		}
+	}
+
+	return c.RenderJSON(re)
+}
+
 // leaui image plugin upload image
 func (c File) UploadImageLeaui(albumId string) revel.Result {
 	re := c.uploadImage("", albumId)
@@ -126,6 +144,8 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 
 	if from == "logo" || from == "blogLogo" {
 		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/logo"
+	} else if from == "lockWallpaper" {
+		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/lock_wallpaper"
 	} else {
 		// fileUrlPath = "files/" + Digest3(userId) + "/" + userId + "/" + Digest2(newGuid) + "/images"
 		fileUrlPath = "files/" + GetRandomFilePath(userId, newGuid) + "/images"
@@ -159,6 +179,8 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 		maxFileSize = configService.GetUploadSize("uploadAvatarSize")
 	} else if from == "blogLogo" {
 		maxFileSize = configService.GetUploadSize("uploadBlogLogoSize")
+	} else if from == "lockWallpaper" {
+		maxFileSize = configService.GetUploadSize("uploadAvatarSize")
 	} else {
 		maxFileSize = configService.GetUploadSize("uploadImageSize")
 	}
@@ -230,7 +252,7 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	fileInfo.FileId = id
 	fileId = id.Hex()
 
-	if from == "logo" || from == "blogLogo" {
+	if from == "logo" || from == "blogLogo" || from == "lockWallpaper" {
 		fileId = fileUrlPath
 	}
 

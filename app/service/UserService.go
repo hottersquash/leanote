@@ -426,6 +426,77 @@ func (this *UserService) UpdateLeftIsMin(userId string, leftIsMin bool) bool {
 	return db.UpdateByQMap(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, bson.M{"LeftIsMin": leftIsMin})
 }
 
+// 锁屏设置
+func (this *UserService) UpdateLockSettings(userId string, lockTimeoutMinutes int, lockWallpaper string) bool {
+	update := bson.M{}
+	if lockTimeoutMinutes >= 0 {
+		update["LockTimeoutMinutes"] = lockTimeoutMinutes
+		update["LockConfigured"] = true
+		update["LockWallpaper"] = lockWallpaper
+	} else if lockWallpaper != "" {
+		update["LockWallpaper"] = lockWallpaper
+	}
+	if len(update) == 0 {
+		return true
+	}
+	return db.UpdateByQMap(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, update)
+}
+
+func (this *UserService) SetLockPwd(userId, oldLockPwd, lockPwd string) (bool, string) {
+	userInfo := this.GetUser(userId)
+	hasLockPwd := userInfo.LockPwd != ""
+
+	if hasLockPwd {
+		if !ComparePwd(oldLockPwd, userInfo.LockPwd) {
+			return false, "oldLockPasswordError"
+		}
+	}
+
+	if reOk, reMsg := Vd("password", lockPwd); !reOk {
+		return false, reMsg
+	}
+
+	passwd := GenPwd(lockPwd)
+	if passwd == "" {
+		return false, "GenerateHash error"
+	}
+
+	ok := db.UpdateByQMap(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, bson.M{
+		"LockPwd":        passwd,
+		"LockConfigured": true,
+	})
+	return ok, ""
+}
+
+func (this *UserService) DeleteLockPwd(userId, loginPwd string) (bool, string) {
+	userInfo := this.GetUser(userId)
+	if userInfo.LockPwd == "" {
+		return true, ""
+	}
+	if !ComparePwd(loginPwd, userInfo.Pwd) {
+		return false, "oldPasswordError"
+	}
+	ok := db.UpdateByQField(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, "LockPwd", "")
+	return ok, ""
+}
+
+func (this *UserService) VerifyLockPwd(userId, lockPwd string) bool {
+	userInfo := this.GetUser(userId)
+	if userInfo.LockPwd == "" {
+		return true
+	}
+	return ComparePwd(lockPwd, userInfo.LockPwd)
+}
+
+func (this *UserService) PrepareLockInfo(user *info.User) {
+	user.LockHasPwd = user.LockPwd != ""
+	user.LockPwd = ""
+	if user.LockWallpaper != "" && !strings.HasPrefix(user.LockWallpaper, "http") {
+		user.LockWallpaper = strings.Trim(user.LockWallpaper, "/")
+		user.LockWallpaper = "/" + user.LockWallpaper
+	}
+}
+
 //-------------
 // user admin
 func (this *UserService) ListUsers(pageNumber, pageSize int, sortField string, isAsc bool, email string) (page info.Page, users []info.User) {

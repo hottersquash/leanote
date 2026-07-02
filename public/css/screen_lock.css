@@ -1,0 +1,90 @@
+#screenLockMask {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 99999;
+	display: none;
+	overflow: hidden;
+}
+
+#screenLockBg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	filter: blur(2px);
+	transform: scale(1.05);
+}
+
+#screenLockBg:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.45);
+}
+
+.screen-lock-panel {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 360px;
+	max-width: 90%;
+	padding: 30px 24px;
+	background: rgba(255, 255, 255, 0.92);
+	border-radius: 8px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	text-align: center;
+	z-index: 1;
+}
+
+.screen-lock-panel img {
+	width: 72px;
+	height: 72px;
+	border-radius: 50%;
+	margin-bottom: 12px;
+}
+
+.screen-lock-panel .screen-lock-username {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+
+.screen-lock-panel .screen-lock-time {
+	color: #666;
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+
+.screen-lock-panel .form-control {
+	margin-bottom: 10px;
+}
+
+.screen-lock-panel .btn {
+	min-width: 120px;
+}
+
+.screen-lock-links {
+	margin-top: 14px;
+	font-size: 13px;
+}
+
+.screen-lock-links a {
+	display: inline-block;
+	margin: 0 8px;
+	color: #337ab7;
+}
+
+body.screen-locked #page {
+	filter: blur(4px);
+}

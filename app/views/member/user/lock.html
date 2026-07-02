@@ -1,0 +1,189 @@
+{{template "member/top.html" .}}
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "screenLockSettings"}}</h3></div>
+<div class="row">
+<div class="col-sm-8">
+
+	<section class="panel panel-default">
+		<div class="panel-heading">{{msg . "screenLockAutoLock"}}</div>
+		<div class="panel-body">
+			<div class="alert alert-danger" id="lockSettingsMsg" style="display: none"></div>
+			<p class="text-muted">{{msg . "screenLockWeakTips"}}</p>
+			<div class="form-group">
+				<label class="control-label" for="lockTimeoutMinutes">{{msg . "screenLockTimeout"}}</label>
+				<select class="form-control" id="lockTimeoutMinutes">
+					<option value="0">{{msg . "screenLockDisabled"}}</option>
+					<option value="5">5 {{msg . "minutes"}}</option>
+					<option value="10">10 {{msg . "minutes"}}</option>
+					<option value="15">15 {{msg . "minutes"}}</option>
+					<option value="30">30 {{msg . "minutes"}}</option>
+					<option value="60">60 {{msg . "minutes"}}</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label">{{msg . "screenLockWallpaper"}}</label>
+				<div class="m-b-sm">
+					<img src="{{if .userInfo.LockWallpaper}}{{.userInfo.LockWallpaper}}{{else}}/images/slider/all.gif{{end}}" id="lockWallpaperPreview" style="max-width: 100%; max-height: 180px; border-radius: 4px;" />
+				</div>
+				<form id="uploadLockWallpaper" method="post" action="/file/uploadLockWallpaper" enctype="multipart/form-data">
+					<div class="input-group m-b-sm">
+						<input type="file" name="file" id="lockWallpaperFile" accept="image/*" class="form-control"/>
+						<span class="input-group-btn">
+							<button type="button" id="lockWallpaperUploadBtn" class="btn btn-default">{{msg . "chooseImage"}}</button>
+						</span>
+					</div>
+				</form>
+				<input type="text" class="form-control" id="lockWallpaperUrl" placeholder="{{msg . "screenLockWallpaperUrl"}}" value="{{.userInfo.LockWallpaper}}"/>
+			</div>
+			<button type="button" id="lockSettingsBtn" class="btn btn-success">{{msg . "submit"}}</button>
+		</div>
+	</section>
+
+	<section class="panel panel-default">
+		<div class="panel-heading">{{msg . "screenLockPassword"}}</div>
+		<div class="panel-body">
+			<div class="alert alert-danger" id="lockPwdMsg" style="display: none"></div>
+			<form id="lockPwdForm">
+				{{if .userInfo.LockHasPwd}}
+				<div class="form-group">
+					<label class="control-label" for="oldLockPwd">{{msg . "oldLockPassword"}}</label>
+					<input type="password" class="form-control" id="oldLockPwd" name="oldLockPwd"/>
+				</div>
+				{{end}}
+				<div class="form-group">
+					<label class="control-label" for="lockPwd">{{if .userInfo.LockHasPwd}}{{msg . "newLockPassword"}}{{else}}{{msg . "screenLockSetPassword"}}{{end}}</label>
+					<input type="password" class="form-control" id="lockPwd" name="lockPwd"
+						data-rules='[
+							{rule: "required", msg: "inputPassword"},
+							{rule: "password", msg: "errorPassword"}
+						]'
+						data-msg_target="#lockPwdMsg"
+					/>
+					<div class="form-tips">{{msg . "passwordTips"}}</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="lockPwd2">{{msg . "password2"}}</label>
+					<input type="password" class="form-control" id="lockPwd2" name="lockPwd2"
+						data-rules='[
+							{rule: "required", msg: "inputPassword2"},
+							{rule: "equalTo", data:"#lockPwd", msg: "confirmPassword"}
+						]'
+						data-msg_target="#lockPwdMsg"
+					/>
+				</div>
+			</form>
+			<button type="button" id="lockPwdBtn" class="btn btn-success m-r-sm">{{msg . "submit"}}</button>
+			{{if .userInfo.LockHasPwd}}
+			<button type="button" id="deleteLockPwdBtn" class="btn btn-danger">{{msg . "screenLockDeletePassword"}}</button>
+			{{end}}
+		</div>
+	</section>
+
+	{{if .userInfo.LockHasPwd}}
+	<section class="panel panel-default" id="deleteLockPwdPanel">
+		<div class="panel-heading">{{msg . "screenLockDeletePassword"}}</div>
+		<div class="panel-body">
+			<div class="alert alert-danger" id="deleteLockPwdMsg" style="display: none"></div>
+			<p class="text-muted">{{msg . "screenLockDeletePasswordTips"}}</p>
+			<div class="form-group">
+				<label class="control-label" for="loginPwdForDelete">{{msg . "oldPassword"}}</label>
+				<input type="password" class="form-control" id="loginPwdForDelete"/>
+			</div>
+			<button type="button" id="confirmDeleteLockPwdBtn" class="btn btn-danger">{{msg . "screenLockDeletePassword"}}</button>
+		</div>
+	</section>
+	{{end}}
+
+</div>
+</div>
+
+{{template "member/footer.html" .}}
+<script>
+$(function() {
+	var lockConfigured = {{if .userInfo.LockConfigured}}true{{else}}false{{end}};
+	var lockTimeout = {{.userInfo.LockTimeoutMinutes}};
+	if (!lockConfigured) {
+		lockTimeout = 10;
+	}
+	$("#lockTimeoutMinutes").val(String(lockTimeout));
+
+	$("#lockSettingsBtn").click(function() {
+		var lockTimeoutMinutes = parseInt($("#lockTimeoutMinutes").val(), 10);
+		var lockWallpaper = $.trim($("#lockWallpaperUrl").val());
+		post("/user/updateLockSettings", {lockTimeoutMinutes: lockTimeoutMinutes, lockWallpaper: lockWallpaper}, function(e) {
+			if (e.Ok) {
+				showAlert("#lockSettingsMsg", getMsg("screenLockSettingsSaved"), "success");
+			} else {
+				showAlert("#lockSettingsMsg", e.Msg, "danger");
+			}
+		}, "#lockSettingsBtn");
+	});
+
+	$("#lockWallpaperUploadBtn").click(function() {
+		var fileInput = $("#lockWallpaperFile")[0];
+		if (!fileInput.files || !fileInput.files.length) {
+			showAlert("#lockSettingsMsg", getMsg("chooseImage"), "danger");
+			return;
+		}
+		var formData = new FormData();
+		formData.append("file", fileInput.files[0]);
+		$.ajax({
+			url: "/file/uploadLockWallpaper",
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function(e) {
+				if (e.Ok) {
+					var url = e.Id;
+					$("#lockWallpaperUrl").val(url);
+					$("#lockWallpaperPreview").attr("src", url);
+					showAlert("#lockSettingsMsg", getMsg("screenLockWallpaperUpdated"), "success");
+				} else {
+					showAlert("#lockSettingsMsg", e.Msg || getMsg("error"), "danger");
+				}
+			}
+		});
+	});
+
+	var lockPwdVd = new vd.init("#lockPwdForm");
+	$("#lockPwdBtn").click(function(e) {
+		e.preventDefault();
+		if (!lockPwdVd.valid()) {
+			return;
+		}
+		var data = {lockPwd: $("#lockPwd").val()};
+		if ($("#oldLockPwd").length) {
+			data.oldLockPwd = $("#oldLockPwd").val();
+		}
+		post("/user/setLockPwd", data, function(e) {
+			if (e.Ok) {
+				showAlert("#lockPwdMsg", getMsg("screenLockPasswordSaved"), "success");
+				setTimeout(function() { location.reload(); }, 800);
+			} else {
+				showAlert("#lockPwdMsg", e.Msg, "danger");
+			}
+		}, "#lockPwdBtn");
+	});
+
+	$("#deleteLockPwdBtn").click(function() {
+		$("#deleteLockPwdPanel")[0].scrollIntoView();
+	});
+
+	$("#confirmDeleteLockPwdBtn").click(function() {
+		var loginPwd = $("#loginPwdForDelete").val();
+		if (!loginPwd) {
+			showAlert("#deleteLockPwdMsg", getMsg("inputPassword"), "danger");
+			return;
+		}
+		post("/user/deleteLockPwd", {loginPwd: loginPwd}, function(e) {
+			if (e.Ok) {
+				showAlert("#deleteLockPwdMsg", getMsg("screenLockPasswordDeleted"), "success");
+				setTimeout(function() { location.reload(); }, 800);
+			} else {
+				showAlert("#deleteLockPwdMsg", e.Msg, "danger");
+			}
+		}, "#confirmDeleteLockPwdBtn");
+	});
+});
+</script>
+{{template "member/end.html" .}}

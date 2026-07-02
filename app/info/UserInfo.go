@@ -30,6 +30,13 @@ type User struct {
 	MdEditorWidth int  `MdEditorWidth` // markdown 左侧编辑器宽度
 	LeftIsMin     bool `LeftIsMin`     // 左侧是否是隐藏的, 默认是打开的
 
+	// 锁屏设置
+	LockConfigured       bool   `LockConfigured"`                 // 是否已配置过锁屏
+	LockTimeoutMinutes   int    `LockTimeoutMinutes"`             // 0=不上锁, >0=无操作分钟数
+	LockPwd              string `bson:"LockPwd" json:"-"`         // 锁屏解锁密码(哈希)
+	LockWallpaper        string `LockWallpaper"`                   // 锁屏壁纸
+	LockHasPwd           bool   `bson:"-" json:"LockHasPwd"`      // 是否已设置锁屏密码(仅下发)
+
 	// 这里 第三方登录
 	ThirdUserId   string `ThirdUserId`   // 用户Id, 在第三方中唯一可识别
 	ThirdUsername string `ThirdUsername` // 第三方中username, 为了显示

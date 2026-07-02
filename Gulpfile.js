@@ -48,6 +48,7 @@ gulp.task('concatAppJs', function() {
         'js/common.js',
         'js/app/note.js',
         'js/app/page.js', // 写作模式下, page依赖note
+        'js/app/screen_lock.js',
         'js/app/tag.js',
         'js/app/notebook.js',
         'js/app/share.js',
