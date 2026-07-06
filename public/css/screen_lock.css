@@ -75,6 +75,11 @@
 	margin-bottom: 10px;
 }
 
+.screen-lock-pwd-input {
+	-webkit-text-security: disc;
+	text-security: disc;
+}
+
 .screen-lock-panel .btn {
 	min-width: 120px;
 }

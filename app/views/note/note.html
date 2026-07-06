@@ -857,7 +857,9 @@ function log(o) {
 		<div id="screenLockMsg" class="alert alert-danger" style="display:none;"></div>
 		<div id="screenLockNoPwdTips" class="text-muted" style="display:none;">{{msg . "screenLockNoPasswordTips"}}</div>
 		<div id="screenLockPwdGroup">
-			<input type="password" class="form-control" id="screenLockPwd" placeholder="{{msg . "screenLockUnlockPassword"}}" />
+			<form id="screenLockForm" autocomplete="off" onsubmit="return false;">
+				<input type="text" class="form-control screen-lock-pwd-input" id="screenLockPwd" placeholder="{{msg . "screenLockUnlockPassword"}}" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" data-lpignore="true" data-1p-ignore="true" />
+			</form>
 		</div>
 		<button type="button" class="btn btn-primary" id="screenLockUnlockBtn">{{msg . "screenLockUnlock"}}</button>
 		<div class="screen-lock-links">

@@ -51,6 +51,10 @@ var ScreenLock = {
 		$('#screenLockUnlockBtn').click(function() {
 			self.tryUnlock();
 		});
+		$('#screenLockForm').on('submit', function(e) {
+			e.preventDefault();
+			self.tryUnlock();
+		});
 		$('#screenLockPwd').keydown(function(e) {
 			if (e.keyCode === 13) {
 				self.tryUnlock();
