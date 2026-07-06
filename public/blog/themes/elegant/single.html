@@ -40,8 +40,9 @@
 </div>
 
 <!-- 一些公用的js -->
-<script src="{{$.leanoteUrl}}/public/blog/js/common.js"></script>
+<script src="{{$.blogCommonJsUrl}}"></script>
 <script>
+var blogNavPosition = "{{if $.blogInfo.BlogNavPosition}}{{$.blogInfo.BlogNavPosition}}{{else}}left{{end}}";
 $(function() {
 	initNav();
 });

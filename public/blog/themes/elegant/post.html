@@ -86,6 +86,7 @@
 <!-- 一些在share_comment.js 需要使用的变量 -->
 <script>
 var siteUrl = "{{$.siteUrl}}"; // common.js需要
+var blogNavPosition = "{{if $.blogInfo.BlogNavPosition}}{{$.blogInfo.BlogNavPosition}}{{else}}left{{end}}";
 // 以下 share_comment.js需要
 var blogInfo={UserId: "{{$.blogInfo.UserId}}", OpenComment: {{$.blogInfo.OpenComment}}, CommentType: "{{$.blogInfo.CommentType}}"}; 
 var noteId = "{{$.post.NoteId}}"; // 

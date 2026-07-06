@@ -31,6 +31,16 @@ func (c File) UploadBlogLogo() revel.Result {
 	return c.RenderTemplate("file/blog_logo.html")
 }
 
+func (c File) UploadBlogBgImage() revel.Result {
+	re := c.uploadImage("blogBg", "")
+
+	c.ViewArgs["fileUrlPath"] = re.Id
+	c.ViewArgs["resultCode"] = re.Code
+	c.ViewArgs["resultMsg"] = re.Msg
+
+	return c.RenderTemplate("file/blog_logo.html")
+}
+
 // 拖拉上传, pasteImage
 // noteId 是为了判断是否是协作的note, 如果是则需要复制一份到note owner中
 func (c File) PasteImage(noteId string) revel.Result {
@@ -144,6 +154,8 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 
 	if from == "logo" || from == "blogLogo" {
 		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/logo"
+	} else if from == "blogBg" {
+		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/blog_bg"
 	} else if from == "lockWallpaper" {
 		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/lock_wallpaper"
 	} else {
@@ -179,6 +191,8 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 		maxFileSize = configService.GetUploadSize("uploadAvatarSize")
 	} else if from == "blogLogo" {
 		maxFileSize = configService.GetUploadSize("uploadBlogLogoSize")
+	} else if from == "blogBg" {
+		maxFileSize = configService.GetUploadSize("uploadImageSize")
 	} else if from == "lockWallpaper" {
 		maxFileSize = configService.GetUploadSize("uploadAvatarSize")
 	} else {
@@ -252,7 +266,7 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	fileInfo.FileId = id
 	fileId = id.Hex()
 
-	if from == "logo" || from == "blogLogo" || from == "lockWallpaper" {
+	if from == "logo" || from == "blogLogo" || from == "lockWallpaper" || from == "blogBg" {
 		fileId = fileUrlPath
 	}
 

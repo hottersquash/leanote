@@ -1,0 +1,197 @@
+{{template "member/top.html" .}}
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "backgroundSet"}}</h3></div>
+
+<div class="row">
+<div class="col-sm-10">
+	<div id="formData">
+		<section class="panel panel-default">
+			<div class="panel-body">
+  				<div class="alert alert-danger" id="baseMsg" style="display: none"></div>
+
+				<h4>{{msg . "headerNavBgSet"}}</h4>
+				<div class="form-group">
+					<label>{{msg . "bgColor"}}</label>
+					<input type="color" id="HeaderNavBgColorPicker" value="{{if .userBlog.HeaderNavBgColor}}{{.userBlog.HeaderNavBgColor}}{{else}}#ffffff{{end}}">
+					<input type="text" class="form-control" style="display:inline-block;width:160px;margin-left:8px;" id="HeaderNavBgColor" name="HeaderNavBgColor" value="{{.userBlog.HeaderNavBgColor}}" placeholder="#ffffff">
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgImage"}}</label>
+					<input type="hidden" name="HeaderNavBgImage" id="HeaderNavBgImage" value="{{.userBlog.HeaderNavBgImage}}" />
+					<form id="formHeaderNavBg" action="/file/uploadBlogBgImage" method="post" enctype="multipart/form-data" target="bgUploadTarget">
+						<input type="file" class="form-control" name="file" onChange='uploadTargetField="HeaderNavBgImage";uploadTargetPreview="headerNavBgPreview";$("#formHeaderNavBg").submit();' />
+					</form>
+					<div id="headerNavBgPreview" {{if not .userBlog.HeaderNavBgImage}}style="display:none"{{end}}>
+						<img src="{{.userBlog.HeaderNavBgImage}}" style="max-height:80px;margin-top:8px;" />
+						<a href="#" class="delete-bg" data-target="HeaderNavBgImage" data-preview="headerNavBgPreview">{{msg . "delete"}}</a>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgOpacity"}} (<span id="HeaderNavBgOpacityVal">{{if .userBlog.HeaderNavBgOpacity}}{{.userBlog.HeaderNavBgOpacity}}{{else}}100{{end}}</span>%)</label>
+					<input type="range" class="form-control" id="HeaderNavBgOpacity" min="0" max="100" value="{{if .userBlog.HeaderNavBgOpacity}}{{.userBlog.HeaderNavBgOpacity}}{{else}}100{{end}}">
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgSize"}}</label>
+					<select class="form-control" id="HeaderNavBgSize">
+						<option value="cover" {{if or (not .userBlog.HeaderNavBgSize) (eq .userBlog.HeaderNavBgSize "cover")}}selected{{end}}>{{msg . "bgSizeCover"}}</option>
+						<option value="contain" {{if eq .userBlog.HeaderNavBgSize "contain"}}selected{{end}}>{{msg . "bgSizeContain"}}</option>
+						<option value="auto" {{if eq .userBlog.HeaderNavBgSize "auto"}}selected{{end}}>{{msg . "bgSizeAuto"}}</option>
+						<option value="stretch" {{if eq .userBlog.HeaderNavBgSize "stretch"}}selected{{end}}>{{msg . "bgSizeStretch"}}</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgRepeat"}}</label>
+					<select class="form-control" id="HeaderNavBgRepeat">
+						<option value="no-repeat" {{if or (not .userBlog.HeaderNavBgRepeat) (eq .userBlog.HeaderNavBgRepeat "no-repeat")}}selected{{end}}>{{msg . "bgRepeatNo"}}</option>
+						<option value="repeat" {{if eq .userBlog.HeaderNavBgRepeat "repeat"}}selected{{end}}>{{msg . "bgRepeatAll"}}</option>
+						<option value="repeat-x" {{if eq .userBlog.HeaderNavBgRepeat "repeat-x"}}selected{{end}}>{{msg . "bgRepeatX"}}</option>
+						<option value="repeat-y" {{if eq .userBlog.HeaderNavBgRepeat "repeat-y"}}selected{{end}}>{{msg . "bgRepeatY"}}</option>
+					</select>
+				</div>
+
+				<hr />
+
+				<h4>{{msg . "pageBgSet"}}</h4>
+				<div class="form-group">
+					<label>{{msg . "bgColor"}}</label>
+					<input type="color" id="PageBgColorPicker" value="{{if .userBlog.PageBgColor}}{{.userBlog.PageBgColor}}{{else}}#f5f5f5{{end}}">
+					<input type="text" class="form-control" style="display:inline-block;width:160px;margin-left:8px;" id="PageBgColor" name="PageBgColor" value="{{.userBlog.PageBgColor}}" placeholder="#f5f5f5">
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgImage"}}</label>
+					<input type="hidden" name="PageBgImage" id="PageBgImage" value="{{.userBlog.PageBgImage}}" />
+					<form id="formPageBg" action="/file/uploadBlogBgImage" method="post" enctype="multipart/form-data" target="bgUploadTarget">
+						<input type="file" class="form-control" name="file" onChange='uploadPageBg(this);' />
+					</form>
+					<div id="pageBgPreview" {{if not .userBlog.PageBgImage}}style="display:none"{{end}}>
+						<img src="{{.userBlog.PageBgImage}}" style="max-height:80px;margin-top:8px;" />
+						<a href="#" class="delete-bg" data-target="PageBgImage" data-preview="pageBgPreview">{{msg . "delete"}}</a>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgOpacity"}} (<span id="PageBgOpacityVal">{{if .userBlog.PageBgOpacity}}{{.userBlog.PageBgOpacity}}{{else}}100{{end}}</span>%)</label>
+					<input type="range" class="form-control" id="PageBgOpacity" min="0" max="100" value="{{if .userBlog.PageBgOpacity}}{{.userBlog.PageBgOpacity}}{{else}}100{{end}}">
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgSize"}}</label>
+					<select class="form-control" id="PageBgSize">
+						<option value="cover" {{if or (not .userBlog.PageBgSize) (eq .userBlog.PageBgSize "cover")}}selected{{end}}>{{msg . "bgSizeCover"}}</option>
+						<option value="contain" {{if eq .userBlog.PageBgSize "contain"}}selected{{end}}>{{msg . "bgSizeContain"}}</option>
+						<option value="auto" {{if eq .userBlog.PageBgSize "auto"}}selected{{end}}>{{msg . "bgSizeAuto"}}</option>
+						<option value="stretch" {{if eq .userBlog.PageBgSize "stretch"}}selected{{end}}>{{msg . "bgSizeStretch"}}</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>{{msg . "bgRepeat"}}</label>
+					<select class="form-control" id="PageBgRepeat">
+						<option value="no-repeat" {{if or (not .userBlog.PageBgRepeat) (eq .userBlog.PageBgRepeat "no-repeat")}}selected{{end}}>{{msg . "bgRepeatNo"}}</option>
+						<option value="repeat" {{if eq .userBlog.PageBgRepeat "repeat"}}selected{{end}}>{{msg . "bgRepeatAll"}}</option>
+						<option value="repeat-x" {{if eq .userBlog.PageBgRepeat "repeat-x"}}selected{{end}}>{{msg . "bgRepeatX"}}</option>
+						<option value="repeat-y" {{if eq .userBlog.PageBgRepeat "repeat-y"}}selected{{end}}>{{msg . "bgRepeatY"}}</option>
+					</select>
+				</div>
+
+				<hr />
+
+				<h4>{{msg . "blogNavPositionSet"}}</h4>
+				<div class="form-group">
+					<label class="radio-inline">
+						<input type="radio" name="BlogNavPosition" value="left" {{if or (not .userBlog.BlogNavPosition) (eq .userBlog.BlogNavPosition "left")}}checked{{end}}> {{msg . "blogNavPositionLeft"}}
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="BlogNavPosition" value="right" {{if eq .userBlog.BlogNavPosition "right"}}checked{{end}}> {{msg . "blogNavPositionRight"}}
+					</label>
+					<p class="help-block">{{msg . "blogNavPositionHelp"}}</p>
+				</div>
+			</div>
+			<footer class="panel-footer text-right bg-light lter">
+			    <button type="submit" id="baseBtn" class="btn btn-success">{{msg . "submit"}}</button>
+			</footer>
+		</section>
+	</div>
+</div>
+</div>
+
+<iframe id="bgUploadTarget" name="bgUploadTarget" src="#" style="display: none"></iframe>
+
+{{template "member/footer.html" .}}
+<script>
+var urlPrefix = "{{.siteUrl}}";
+var uploadTargetField = "HeaderNavBgImage";
+var uploadTargetPreview = "headerNavBgPreview";
+
+function uploadPageBg(input) {
+	uploadTargetField = "PageBgImage";
+	uploadTargetPreview = "pageBgPreview";
+	$("#formPageBg").submit();
+}
+
+function syncColorPicker(pickerId, inputId) {
+	$("#" + pickerId).on("change input", function() {
+		$("#" + inputId).val($(this).val());
+	});
+	$("#" + inputId).on("change", function() {
+		var v = $.trim($(this).val());
+		if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+			$("#" + pickerId).val(v);
+		}
+	});
+}
+
+$(function() {
+	syncColorPicker("HeaderNavBgColorPicker", "HeaderNavBgColor");
+	syncColorPicker("PageBgColorPicker", "PageBgColor");
+
+	$("#HeaderNavBgOpacity").on("input change", function() {
+		$("#HeaderNavBgOpacityVal").text($(this).val());
+	});
+	$("#PageBgOpacity").on("input change", function() {
+		$("#PageBgOpacityVal").text($(this).val());
+	});
+
+	$(".delete-bg").click(function(e) {
+		e.preventDefault();
+		$("#" + $(this).data("target")).val("");
+		$("#" + $(this).data("preview")).hide();
+	});
+
+	$("#baseBtn").click(function() {
+		var data = {
+			HeaderNavBgColor: $("#HeaderNavBgColor").val(),
+			HeaderNavBgImage: $("#HeaderNavBgImage").val(),
+			HeaderNavBgOpacity: parseInt($("#HeaderNavBgOpacity").val(), 10) || 100,
+			HeaderNavBgSize: $("#HeaderNavBgSize").val(),
+			HeaderNavBgRepeat: $("#HeaderNavBgRepeat").val(),
+			PageBgColor: $("#PageBgColor").val(),
+			PageBgImage: $("#PageBgImage").val(),
+			PageBgOpacity: parseInt($("#PageBgOpacity").val(), 10) || 100,
+			PageBgSize: $("#PageBgSize").val(),
+			PageBgRepeat: $("#PageBgRepeat").val(),
+			BlogNavPosition: $("input[name='BlogNavPosition']:checked").val() || "left"
+		};
+		post("/member/blog/setUserBlogBackground", data, function(ret) {
+			showAlert("#baseMsg", "{{msg . "saveSuccess"}}", "success");
+		}, this);
+	});
+});
+
+function uploadFinish(ret) {
+	if (ret) {
+		if (ret.resultCode == '1') {
+			var path = ret.filename;
+			if (path.indexOf("http") !== 0 && path.indexOf("/") !== 0) {
+				path = "/" + path;
+			}
+			$("#" + uploadTargetField).val(path);
+			$("#" + uploadTargetPreview + " img").attr("src", urlPrefix + path).parent().show();
+			uploadTargetField = "HeaderNavBgImage";
+			uploadTargetPreview = "headerNavBgPreview";
+			return;
+		}
+		alert(ret.result);
+		return;
+	}
+	alert("error");
+}
+</script>
+
+{{template "member/end.html" .}}

@@ -148,6 +148,7 @@ func init() {
 	revel.TypeBinders[reflect.TypeOf(info.UserBlogBase{})] = leanoteStructBinder
 	revel.TypeBinders[reflect.TypeOf(info.UserBlogComment{})] = leanoteStructBinder
 	revel.TypeBinders[reflect.TypeOf(info.UserBlogStyle{})] = leanoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.UserBlogBackground{})] = leanoteStructBinder
 	revel.TypeBinders[reflect.TypeOf(info.Notebook{})] = leanoteStructBinder
 	revel.TypeBinders[reflect.TypeOf(info.UserAccount{})] = leanoteStructBinder
 	revel.TypeBinders[reflect.TypeOf(info.NoteOrContent{})] = leanoteStructBinder

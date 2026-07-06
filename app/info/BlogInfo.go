@@ -33,6 +33,23 @@ type UserBlogStyle struct {
 	Css   string `Css`   // 自定义css
 }
 
+// 博客背景与目录导航设置
+type UserBlogBackground struct {
+	HeaderNavBgColor   string `HeaderNavBgColor`
+	HeaderNavBgImage   string `HeaderNavBgImage`
+	HeaderNavBgOpacity int    `HeaderNavBgOpacity` // 0-100
+	HeaderNavBgSize    string `HeaderNavBgSize`    // cover, contain, auto, stretch
+	HeaderNavBgRepeat  string `HeaderNavBgRepeat`  // no-repeat, repeat, repeat-x, repeat-y
+
+	PageBgColor   string `PageBgColor`
+	PageBgImage   string `PageBgImage`
+	PageBgOpacity int    `PageBgOpacity`
+	PageBgSize    string `PageBgSize`
+	PageBgRepeat  string `PageBgRepeat`
+
+	BlogNavPosition string `BlogNavPosition` // left, right
+}
+
 // 每个用户一份博客设置信息
 type UserBlog struct {
 	UserId   bson.ObjectId `bson:"_id"` // 谁的
@@ -61,6 +78,20 @@ type UserBlog struct {
 
 	SubDomain string `SubDomain` // 二级域名
 	Domain    string `Domain`    // 自定义域名
+
+	HeaderNavBgColor   string `HeaderNavBgColor,omitempty`
+	HeaderNavBgImage   string `HeaderNavBgImage,omitempty`
+	HeaderNavBgOpacity int    `HeaderNavBgOpacity,omitempty`
+	HeaderNavBgSize    string `HeaderNavBgSize,omitempty`
+	HeaderNavBgRepeat  string `HeaderNavBgRepeat,omitempty`
+
+	PageBgColor   string `PageBgColor,omitempty`
+	PageBgImage   string `PageBgImage,omitempty`
+	PageBgOpacity int    `PageBgOpacity,omitempty`
+	PageBgSize    string `PageBgSize,omitempty`
+	PageBgRepeat  string `PageBgRepeat,omitempty`
+
+	BlogNavPosition string `BlogNavPosition,omitempty` // left, right
 
 }
 

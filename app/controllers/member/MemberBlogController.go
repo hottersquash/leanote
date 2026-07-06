@@ -127,6 +127,12 @@ func (c MemberBlog) Comment() revel.Result {
 	return c.RenderTemplate("member/blog/comment.html")
 }
 
+func (c MemberBlog) Background() revel.Result {
+	c.common()
+	c.ViewArgs["title"] = c.Message("backgroundSet")
+	return c.RenderTemplate("member/blog/background.html")
+}
+
 func (c MemberBlog) Paging() revel.Result {
 	c.common()
 	c.ViewArgs["title"] = c.Message("Paging")
@@ -532,6 +538,11 @@ func (c MemberBlog) SetUserBlogComment(userBlog info.UserBlogComment) revel.Resu
 func (c MemberBlog) SetUserBlogStyle(userBlog info.UserBlogStyle) revel.Result {
 	re := info.NewRe()
 	re.Ok = blogService.UpdateUserBlogStyle(c.GetUserId(), userBlog)
+	return c.RenderJSON(re)
+}
+func (c MemberBlog) SetUserBlogBackground(userBlog info.UserBlogBackground) revel.Result {
+	re := info.NewRe()
+	re.Ok = blogService.UpdateUserBlogBackground(c.GetUserId(), userBlog)
 	return c.RenderJSON(re)
 }
 

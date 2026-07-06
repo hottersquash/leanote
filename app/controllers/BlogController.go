@@ -299,8 +299,10 @@ func (c Blog) setBlog(userBlog info.UserBlog, userInfo info.User) {
 		"ThemeId":     userBlog.ThemeId,
 		"SubDomain":   userBlog.SubDomain,
 		"Domain":      userBlog.Domain,
+		"BlogNavPosition": userBlog.BlogNavPosition,
 	}
 	c.ViewArgs["blogInfo"] = blogInfo
+	c.ViewArgs["blogStyleCss"] = blogService.BuildBlogStyleCss(userBlog)
 }
 
 func (c Blog) setPaging(pageInfo info.Page) {

@@ -53,23 +53,31 @@ function initNav() {
 	if(!hasNav) {
 		return;
 	}
-	
-	var $title = $(".title");
-	var titlePos = $title.offset();
-	var top = titlePos.top + 10;// - $title.height();
-	// 手机下不要与标题在同一高度
-	if(LEA.isMobile){ 
-		top += 30;
-	}
-	if(top < 0) {
-		top = 10;
+
+	var $posts = $("#posts");
+	var $nav = $("#blogNav");
+	if ($posts.length && $nav.length && !$posts.hasClass("post-page-layout")) {
+		var position = (typeof blogNavPosition !== "undefined" && blogNavPosition) ? blogNavPosition : "left";
+		$posts.addClass("post-page-layout");
+		$nav.addClass("blog-nav-sidebar blog-nav-" + position);
+
+		if (!$posts.find(".post-main").length) {
+			var $main = $('<div class="post-main"></div>');
+			$posts.children().not("#blogNav").appendTo($main);
+			$posts.append($main);
+		}
+
+		if (position === "right") {
+			$posts.append($nav);
+		} else {
+			$posts.prepend($nav);
+		}
 	}
 
-	var left = $title.width() + titlePos.left - 100;
-	$("#blogNav").css("top", top).css("left", left);
-	$("#blogNav").show();
-	
-	$("#blogNavNav").click(function() {
+	$nav.show();
+	$("#blogNavContent").show();
+
+	$("#blogNavNav").off("click").on("click", function() {
 		var $o = $("#blogNavContent");
 		if($o.is(":hidden")) {
 			$o.show();
@@ -77,23 +85,6 @@ function initNav() {
 			$o.hide();
 		}
 	});
-	
-	var $d = $(document);
-	function reNav() {
-	    var vtop = $d.scrollTop();
-	    if(vtop <= top) {
-			$("#blogNav").css("top", top-vtop);
-	    } else {
-	    	// 差距很磊了
-	    	if(LEA.isMobile) {
-				$("#blogNav").css("top", 50);
-			} else {
-				$("#blogNav").css("top", 10);
-			}
-	    }
-	}
-	reNav();
-	$(window).scroll(reNav);
 }
 
 var C = {
