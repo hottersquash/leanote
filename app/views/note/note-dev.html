@@ -152,13 +152,6 @@ function log(o) {
 								</a>
 							</li>
 							
-							<li role="presentation" id="lockNowBtn">
-								<a>
-								<i class="fa fa-lock"></i> 
-								{{msg . "screenLockNow"}}
-								</a>
-							</li>
-							
 							<li role="presentation">
 								<a href="/member/user/lock" target="_blank">
 								<i class="fa fa-cog"></i> 
@@ -204,9 +197,10 @@ function log(o) {
 					</div>
 				</div>
 
-				<div class="pull-right top-nav writting-hide lea-blog">
-					<a target="_blank" href="http://lea.leanote.com"> 
-						{{msg . "Explore"}}
+				<div class="pull-right top-nav writting-hide">
+					<a href="#" id="lockNowBtn" title="{{msg . "screenLockNow"}}">
+						<i class="fa fa-lock"></i>
+						{{msg . "screenLock"}}
 					</a>
 				</div>
 				
