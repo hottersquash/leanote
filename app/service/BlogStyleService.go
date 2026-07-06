@@ -109,22 +109,18 @@ func (this *BlogService) appendBgBlock(css *strings.Builder, selector, pseudoPos
 	css.WriteString(selector + "::before {\n")
 	css.WriteString("  content: '';\n")
 	css.WriteString("  position: " + pseudoPosition + ";\n")
-	if pseudoPosition == "fixed" {
-		css.WriteString("  top: 0; left: 0; right: 0; bottom: 0;\n")
-	} else {
-		css.WriteString("  top: 0; left: 0; right: 0; bottom: 0;\n")
-	}
+	css.WriteString("  top: 0; left: 0; right: 0; bottom: 0;\n")
 	css.WriteString(fmt.Sprintf("  background-image: url('%s');\n", image))
 	css.WriteString(fmt.Sprintf("  background-size: %s;\n", sizeVal))
 	css.WriteString(fmt.Sprintf("  background-repeat: %s;\n", repeatVal))
 	css.WriteString("  background-position: center center;\n")
 	css.WriteString(fmt.Sprintf("  opacity: %.2f;\n", opacityVal))
+	css.WriteString("  pointer-events: none;\n")
 	if pseudoPosition == "fixed" {
-		css.WriteString("  z-index: -1;\n")
+		css.WriteString("  z-index: 0;\n")
 	} else {
 		css.WriteString("  z-index: 0;\n")
 	}
-	css.WriteString("  pointer-events: none;\n")
 	css.WriteString("}\n")
 
 	if pseudoPosition != "fixed" {
@@ -140,18 +136,25 @@ func (this *BlogService) BuildBlogStyleCss(userBlog info.UserBlog) string {
 
 	var css strings.Builder
 
+	hasHeaderBg := strings.TrimSpace(userBlog.HeaderNavBgColor) != "" || userBlog.HeaderNavBgImage != ""
+	if hasHeaderBg {
+		css.WriteString("#headerContainer { background-color: transparent !important; }\n")
+		css.WriteString("#headerAndNav .navbar-default { background: transparent !important; border-color: transparent; }\n")
+	}
 	this.appendBgBlock(&css, "#headerAndNav", "absolute",
 		userBlog.HeaderNavBgColor, userBlog.HeaderNavBgImage,
 		userBlog.HeaderNavBgOpacity, userBlog.HeaderNavBgSize, userBlog.HeaderNavBgRepeat)
 
 	hasPageBg := strings.TrimSpace(userBlog.PageBgColor) != "" || userBlog.PageBgImage != ""
 	if hasPageBg {
-		this.appendBgBlock(&css, "body", "fixed",
+		this.appendBgBlock(&css, "html", "fixed",
 			userBlog.PageBgColor, userBlog.PageBgImage,
 			userBlog.PageBgOpacity, userBlog.PageBgSize, userBlog.PageBgRepeat)
-		css.WriteString("#postsContainer { background: none !important; }\n")
+		css.WriteString("body { background: transparent !important; }\n")
 	}
 
+	css.WriteString("#postsContainer { background: transparent !important; position: relative; z-index: 1; }\n")
+	css.WriteString("#postsContainer .each-post { position: relative; z-index: 1; }\n")
 	css.WriteString(this.buildBlogNavLayoutCss(userBlog.BlogNavPosition))
 	return css.String()
 }
@@ -161,10 +164,11 @@ func (this *BlogService) buildBlogNavLayoutCss(position string) string {
 	var css strings.Builder
 
 	css.WriteString("#posts.post-page-layout {\n")
-	css.WriteString("  display: flex;\n")
+	css.WriteString("  display: flex !important;\n")
 	css.WriteString("  gap: 24px;\n")
 	css.WriteString("  align-items: flex-start;\n")
-	css.WriteString("  max-width: 1100px;\n")
+	css.WriteString("  width: auto !important;\n")
+	css.WriteString("  max-width: 1200px;\n")
 	css.WriteString("  margin-left: auto;\n")
 	css.WriteString("  margin-right: auto;\n")
 	css.WriteString("}\n")
@@ -172,29 +176,43 @@ func (this *BlogService) buildBlogNavLayoutCss(position string) string {
 	css.WriteString("#posts.post-page-layout .post-main {\n")
 	css.WriteString("  flex: 1;\n")
 	css.WriteString("  min-width: 0;\n")
+	css.WriteString("  position: relative;\n")
+	css.WriteString("  z-index: 1;\n")
 	css.WriteString("}\n")
 
 	css.WriteString("#blogNav.blog-nav-sidebar {\n")
-	css.WriteString("  display: block;\n")
-	css.WriteString("  position: sticky;\n")
+	css.WriteString("  display: block !important;\n")
+	css.WriteString("  position: sticky !important;\n")
 	css.WriteString("  top: 20px;\n")
+	css.WriteString("  left: auto !important;\n")
+	css.WriteString("  right: auto !important;\n")
 	css.WriteString("  align-self: flex-start;\n")
-	css.WriteString("  width: 180px;\n")
-	css.WriteString("  flex-shrink: 0;\n")
+	css.WriteString("  width: clamp(220px, 24vw, 300px);\n")
+	css.WriteString("  min-width: 220px;\n")
+	css.WriteString("  max-width: 300px;\n")
+	css.WriteString("  flex: 0 0 auto;\n")
 	css.WriteString("  max-height: calc(100vh - 40px);\n")
 	css.WriteString("  overflow: hidden;\n")
-	css.WriteString("  z-index: 5;\n")
+	css.WriteString("  z-index: 2;\n")
 	css.WriteString("  padding: 8px;\n")
 	css.WriteString("  border-radius: 4px;\n")
 	css.WriteString("  border: 1px solid #ebeff2;\n")
-	css.WriteString("  background-color: rgba(255, 255, 255, 0.95);\n")
-	css.WriteString("  opacity: 1;\n")
+	css.WriteString("  background-color: rgba(255, 255, 255, 0.95) !important;\n")
+	css.WriteString("  opacity: 1 !important;\n")
 	css.WriteString("}\n")
 
 	css.WriteString("#blogNav.blog-nav-sidebar #blogNavContent {\n")
-	css.WriteString("  display: block;\n")
+	css.WriteString("  display: block !important;\n")
 	css.WriteString("  max-height: calc(100vh - 90px);\n")
 	css.WriteString("  overflow-y: auto;\n")
+	css.WriteString("  overflow-x: hidden;\n")
+	css.WriteString("  word-wrap: break-word;\n")
+	css.WriteString("  overflow-wrap: anywhere;\n")
+	css.WriteString("}\n")
+	css.WriteString("#blogNav.blog-nav-sidebar #blogNavContent a {\n")
+	css.WriteString("  display: block;\n")
+	css.WriteString("  line-height: 1.45;\n")
+	css.WriteString("  white-space: normal;\n")
 	css.WriteString("}\n")
 
 	if position == "right" {
@@ -207,10 +225,8 @@ func (this *BlogService) buildBlogNavLayoutCss(position string) string {
 	css.WriteString("    flex-direction: column;\n")
 	css.WriteString("  }\n")
 	css.WriteString("  #blogNav.blog-nav-sidebar {\n")
-	css.WriteString("    position: relative;\n")
+	css.WriteString("    position: relative !important;\n")
 	css.WriteString("    top: auto !important;\n")
-	css.WriteString("    left: auto !important;\n")
-	css.WriteString("    right: auto !important;\n")
 	css.WriteString("    width: 100%;\n")
 	css.WriteString("    max-height: 220px;\n")
 	css.WriteString("    order: -1;\n")

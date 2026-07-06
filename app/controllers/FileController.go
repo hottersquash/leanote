@@ -33,12 +33,10 @@ func (c File) UploadBlogLogo() revel.Result {
 
 func (c File) UploadBlogBgImage() revel.Result {
 	re := c.uploadImage("blogBg", "")
-
-	c.ViewArgs["fileUrlPath"] = re.Id
-	c.ViewArgs["resultCode"] = re.Code
-	c.ViewArgs["resultMsg"] = re.Msg
-
-	return c.RenderTemplate("file/blog_logo.html")
+	if re.Ok && re.Id != "" && !strings.HasPrefix(re.Id, "/") {
+		re.Id = "/" + re.Id
+	}
+	return c.RenderJSON(re)
 }
 
 // 拖拉上传, pasteImage
@@ -192,7 +190,10 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	} else if from == "blogLogo" {
 		maxFileSize = configService.GetUploadSize("uploadBlogLogoSize")
 	} else if from == "blogBg" {
-		maxFileSize = configService.GetUploadSize("uploadImageSize")
+		maxFileSize = configService.GetUploadSize("uploadBlogBgSize")
+		if maxFileSize <= 0 {
+			maxFileSize = 20
+		}
 	} else if from == "lockWallpaper" {
 		maxFileSize = configService.GetUploadSize("uploadAvatarSize")
 	} else {

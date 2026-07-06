@@ -8,6 +8,32 @@
 			<div class="panel-body">
   				<div class="alert alert-danger" id="baseMsg" style="display: none"></div>
 
+				<h4>{{msg . "bgPreview"}}</h4>
+				<div class="row m-b-md">
+					<div class="col-sm-6">
+						<p class="text-muted">{{msg . "bgPreviewHeader"}}</p>
+						<div id="headerNavPreviewBox" class="blog-bg-preview-box">
+							<div id="headerNavPreviewLayer" class="blog-bg-preview-layer"></div>
+							<div class="blog-bg-preview-content">
+								<strong>{{msg . "blogName"}}</strong>
+								<span class="text-muted"> · Nav</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<p class="text-muted">{{msg . "bgPreviewPage"}}</p>
+						<div id="pagePreviewBox" class="blog-bg-preview-box blog-bg-preview-page">
+							<div id="pagePreviewLayer" class="blog-bg-preview-layer"></div>
+							<div class="blog-bg-preview-content">
+								<p>{{msg . "fullBlog"}}</p>
+								<p class="text-muted">{{msg . "blogDesc"}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<hr />
+
 				<h4>{{msg . "headerNavBgSet"}}</h4>
 				<div class="form-group">
 					<label>{{msg . "bgColor"}}</label>
@@ -17,12 +43,14 @@
 				<div class="form-group">
 					<label>{{msg . "bgImage"}}</label>
 					<input type="hidden" name="HeaderNavBgImage" id="HeaderNavBgImage" value="{{.userBlog.HeaderNavBgImage}}" />
-					<form id="formHeaderNavBg" action="/file/uploadBlogBgImage" method="post" enctype="multipart/form-data" target="bgUploadTarget">
-						<input type="file" class="form-control" name="file" onChange='uploadTargetField="HeaderNavBgImage";uploadTargetPreview="headerNavBgPreview";$("#formHeaderNavBg").submit();' />
-					</form>
+					<input type="file" class="form-control" id="HeaderNavBgFile" accept="image/*" style="display:none;" />
+					<div class="m-b-sm">
+						<button type="button" class="btn btn-default" id="HeaderNavBgChooseBtn">{{msg . "chooseImage"}}</button>
+						<button type="button" class="btn btn-primary" id="HeaderNavBgUploadBtn">{{msg . "uploadBgImage"}}</button>
+					</div>
 					<div id="headerNavBgPreview" {{if not .userBlog.HeaderNavBgImage}}style="display:none"{{end}}>
-						<img src="{{.userBlog.HeaderNavBgImage}}" style="max-height:80px;margin-top:8px;" />
-						<a href="#" class="delete-bg" data-target="HeaderNavBgImage" data-preview="headerNavBgPreview">{{msg . "delete"}}</a>
+						<img id="headerNavBgPreviewImg" src="" style="max-height:80px;margin-top:8px;border:1px solid #ddd;border-radius:4px;" />
+						<a href="#" class="delete-bg" data-target="HeaderNavBgImage" data-preview="headerNavBgPreview" data-file="HeaderNavBgFile">{{msg . "delete"}}</a>
 					</div>
 				</div>
 				<div class="form-group">
@@ -59,12 +87,14 @@
 				<div class="form-group">
 					<label>{{msg . "bgImage"}}</label>
 					<input type="hidden" name="PageBgImage" id="PageBgImage" value="{{.userBlog.PageBgImage}}" />
-					<form id="formPageBg" action="/file/uploadBlogBgImage" method="post" enctype="multipart/form-data" target="bgUploadTarget">
-						<input type="file" class="form-control" name="file" onChange='uploadPageBg(this);' />
-					</form>
+					<input type="file" class="form-control" id="PageBgFile" accept="image/*" style="display:none;" />
+					<div class="m-b-sm">
+						<button type="button" class="btn btn-default" id="PageBgChooseBtn">{{msg . "chooseImage"}}</button>
+						<button type="button" class="btn btn-primary" id="PageBgUploadBtn">{{msg . "uploadBgImage"}}</button>
+					</div>
 					<div id="pageBgPreview" {{if not .userBlog.PageBgImage}}style="display:none"{{end}}>
-						<img src="{{.userBlog.PageBgImage}}" style="max-height:80px;margin-top:8px;" />
-						<a href="#" class="delete-bg" data-target="PageBgImage" data-preview="pageBgPreview">{{msg . "delete"}}</a>
+						<img id="pageBgPreviewImg" src="" style="max-height:80px;margin-top:8px;border:1px solid #ddd;border-radius:4px;" />
+						<a href="#" class="delete-bg" data-target="PageBgImage" data-preview="pageBgPreview" data-file="PageBgFile">{{msg . "delete"}}</a>
 					</div>
 				</div>
 				<div class="form-group">
@@ -104,36 +134,292 @@
 				</div>
 			</div>
 			<footer class="panel-footer text-right bg-light lter">
-			    <button type="submit" id="baseBtn" class="btn btn-success">{{msg . "submit"}}</button>
+			    <button type="button" id="baseBtn" class="btn btn-success">{{msg . "submit"}}</button>
 			</footer>
 		</section>
 	</div>
 </div>
 </div>
 
-<iframe id="bgUploadTarget" name="bgUploadTarget" src="#" style="display: none"></iframe>
+<style>
+.blog-bg-preview-box {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	min-height: 120px;
+	background: #fff;
+}
+.blog-bg-preview-page {
+	min-height: 160px;
+}
+.blog-bg-preview-layer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none;
+}
+.blog-bg-preview-content {
+	position: relative;
+	z-index: 1;
+	padding: 16px;
+}
+</style>
 
 {{template "member/footer.html" .}}
 <script>
 var urlPrefix = "{{.siteUrl}}";
-var uploadTargetField = "HeaderNavBgImage";
-var uploadTargetPreview = "headerNavBgPreview";
+var pendingHeaderNavPreviewUrl = "";
+var pendingPagePreviewUrl = "";
+var UPLOAD_MAX_BYTES = 750 * 1024;
+var UPLOAD_MAX_DIMENSION = 1920;
 
-function uploadPageBg(input) {
-	uploadTargetField = "PageBgImage";
-	uploadTargetPreview = "pageBgPreview";
-	$("#formPageBg").submit();
+function normalizeImageUrl(path) {
+	path = $.trim(path || "");
+	if (!path) {
+		return "";
+	}
+	if (path.indexOf("http") === 0) {
+		return path;
+	}
+	if (path.charAt(0) !== "/") {
+		path = "/" + path;
+	}
+	return urlPrefix + path;
+}
+
+function normalizeStoredImagePath(path) {
+	path = $.trim(path || "");
+	if (!path) {
+		return "";
+	}
+	if (path.indexOf("http") === 0) {
+		return path;
+	}
+	return path.replace(/^\/+/, "");
+}
+
+function bgSizeCss(size) {
+	if (size === "stretch") {
+		return "100% 100%";
+	}
+	return size || "cover";
+}
+
+function applyPreview(boxId, layerId, colorId, imageId, opacityId, sizeId, repeatId, pendingUrl) {
+	var color = $.trim($("#" + colorId).val());
+	var image = pendingUrl || normalizeImageUrl($("#" + imageId).val());
+	var opacity = (parseInt($("#" + opacityId).val(), 10) || 100) / 100;
+	var size = bgSizeCss($("#" + sizeId).val());
+	var repeat = $("#" + repeatId).val() || "no-repeat";
+
+	$("#" + boxId).css("background-color", color || "transparent");
+	var layerStyle = {
+		"background-image": image ? "url('" + image + "')" : "none",
+		"background-size": size,
+		"background-repeat": repeat,
+		"background-position": "center center",
+		"opacity": image ? opacity : 0
+	};
+	$("#" + layerId).css(layerStyle);
+}
+
+function refreshAllPreviews() {
+	applyPreview("headerNavPreviewBox", "headerNavPreviewLayer",
+		"HeaderNavBgColor", "HeaderNavBgImage", "HeaderNavBgOpacity", "HeaderNavBgSize", "HeaderNavBgRepeat",
+		pendingHeaderNavPreviewUrl);
+	applyPreview("pagePreviewBox", "pagePreviewLayer",
+		"PageBgColor", "PageBgImage", "PageBgOpacity", "PageBgSize", "PageBgRepeat",
+		pendingPagePreviewUrl);
+}
+
+function setImagePreview(hiddenId, previewId, imgId, path) {
+	var stored = normalizeStoredImagePath(path);
+	$("#" + hiddenId).val(stored);
+	if (!stored) {
+		$("#" + previewId).hide();
+		$("#" + imgId).attr("src", "");
+		return;
+	}
+	$("#" + imgId).attr("src", normalizeImageUrl(stored));
+	$("#" + previewId).show();
+}
+
+function revokePreviewUrl(url) {
+	if (url && url.indexOf("blob:") === 0) {
+		URL.revokeObjectURL(url);
+	}
+}
+
+function previewLocalFile(fileInput, hiddenId, previewId, imgId, pendingKey) {
+	if (!fileInput.files || !fileInput.files.length) {
+		return;
+	}
+	if (pendingKey === "header") {
+		revokePreviewUrl(pendingHeaderNavPreviewUrl);
+		pendingHeaderNavPreviewUrl = URL.createObjectURL(fileInput.files[0]);
+	} else {
+		revokePreviewUrl(pendingPagePreviewUrl);
+		pendingPagePreviewUrl = URL.createObjectURL(fileInput.files[0]);
+	}
+	var localUrl = pendingKey === "header" ? pendingHeaderNavPreviewUrl : pendingPagePreviewUrl;
+	$("#" + imgId).attr("src", localUrl);
+	$("#" + previewId).show();
+	refreshAllPreviews();
+}
+
+function compressImageFile(file, maxBytes, maxDimension) {
+	if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+		return $.Deferred().resolve(file).promise();
+	}
+	if (file.size <= maxBytes) {
+		return $.Deferred().resolve(file).promise();
+	}
+
+	return $.Deferred(function(defer) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			var img = new Image();
+			img.onload = function() {
+				var width = img.width;
+				var height = img.height;
+				if (maxDimension && Math.max(width, height) > maxDimension) {
+					var scale = maxDimension / Math.max(width, height);
+					width = Math.round(width * scale);
+					height = Math.round(height * scale);
+				}
+
+				var canvas = document.createElement("canvas");
+				canvas.width = width;
+				canvas.height = height;
+				canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+				var quality = 0.85;
+				var tryEncode = function() {
+					canvas.toBlob(function(blob) {
+						if (!blob) {
+							defer.reject();
+							return;
+						}
+						if (blob.size <= maxBytes) {
+							var filename = (file.name || "background.jpg").replace(/\.[^.]+$/, "") + ".jpg";
+							defer.resolve(new File([blob], filename, {type: "image/jpeg"}), true);
+							return;
+						}
+						if (quality > 0.45) {
+							quality -= 0.08;
+							tryEncode();
+							return;
+						}
+						if (width > 800 || height > 800) {
+							width = Math.round(width * 0.8);
+							height = Math.round(height * 0.8);
+							canvas.width = width;
+							canvas.height = height;
+							canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+							quality = 0.82;
+							tryEncode();
+							return;
+						}
+						var filename = (file.name || "background.jpg").replace(/\.[^.]+$/, "") + ".jpg";
+						defer.resolve(new File([blob], filename, {type: "image/jpeg"}), true);
+					}, "image/jpeg", quality);
+				};
+				tryEncode();
+			};
+			img.onerror = function() { defer.reject(); };
+			img.src = e.target.result;
+		};
+		reader.onerror = function() { defer.reject(); };
+		reader.readAsDataURL(file);
+	}).promise();
+}
+
+function uploadBgImage(fileInput, hiddenId, previewId, imgId, btnId, pendingKey, done) {
+	if (!fileInput.files || !fileInput.files.length) {
+		showAlert("#baseMsg", "{{msg . "chooseImage"}}", "danger");
+		return;
+	}
+	var originalFile = fileInput.files[0];
+	if (btnId) {
+		$(btnId).button("loading");
+	}
+	compressImageFile(originalFile, UPLOAD_MAX_BYTES, UPLOAD_MAX_DIMENSION).done(function(file, compressed) {
+		var formData = new FormData();
+		formData.append("file", file);
+		$.ajax({
+			url: "/file/uploadBlogBgImage",
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function(ret) {
+				if (btnId) {
+					$(btnId).button("reset");
+				}
+				if (ret && ret.Ok) {
+					if (pendingKey === "header") {
+						revokePreviewUrl(pendingHeaderNavPreviewUrl);
+						pendingHeaderNavPreviewUrl = "";
+					} else if (pendingKey === "page") {
+						revokePreviewUrl(pendingPagePreviewUrl);
+						pendingPagePreviewUrl = "";
+					}
+					setImagePreview(hiddenId, previewId, imgId, ret.Id);
+					refreshAllPreviews();
+					showAlert("#baseMsg", compressed ? "{{msg . "uploadBgImageTooLarge"}}" : "{{msg . "uploadBgImageSuccess"}}", "success");
+					if (typeof done === "function") {
+						done(ret);
+					}
+					return;
+				}
+				showAlert("#baseMsg", (ret && ret.Msg) || "error", "danger");
+			},
+			error: function(xhr) {
+				if (btnId) {
+					$(btnId).button("reset");
+				}
+				if (xhr && xhr.status === 413) {
+					showAlert("#baseMsg", "{{msg . "uploadBgImageFailed413"}}", "danger");
+				} else {
+					showAlert("#baseMsg", "error", "danger");
+				}
+			}
+		});
+	}).fail(function() {
+		if (btnId) {
+			$(btnId).button("reset");
+		}
+		showAlert("#baseMsg", "error", "danger");
+	});
 }
 
 function syncColorPicker(pickerId, inputId) {
 	$("#" + pickerId).on("change input", function() {
 		$("#" + inputId).val($(this).val());
+		refreshAllPreviews();
 	});
-	$("#" + inputId).on("change", function() {
+	$("#" + inputId).on("change input", function() {
 		var v = $.trim($(this).val());
 		if (/^#[0-9a-fA-F]{6}$/.test(v)) {
 			$("#" + pickerId).val(v);
 		}
+		refreshAllPreviews();
+	});
+}
+
+function bindBgUpload(chooseBtn, fileId, uploadBtn, hiddenId, previewId, imgId, pendingKey) {
+	$("#" + chooseBtn).click(function() {
+		$("#" + fileId).click();
+	});
+	$("#" + fileId).change(function() {
+		previewLocalFile(this, hiddenId, previewId, imgId, pendingKey);
+		uploadBgImage(this, hiddenId, previewId, imgId, "#" + uploadBtn, pendingKey);
+	});
+	$("#" + uploadBtn).click(function() {
+		uploadBgImage(document.getElementById(fileId), hiddenId, previewId, imgId, "#" + uploadBtn, pendingKey);
 	});
 }
 
@@ -141,17 +427,39 @@ $(function() {
 	syncColorPicker("HeaderNavBgColorPicker", "HeaderNavBgColor");
 	syncColorPicker("PageBgColorPicker", "PageBgColor");
 
-	$("#HeaderNavBgOpacity").on("input change", function() {
-		$("#HeaderNavBgOpacityVal").text($(this).val());
+	setImagePreview("HeaderNavBgImage", "headerNavBgPreview", "headerNavBgPreviewImg", $("#HeaderNavBgImage").val());
+	setImagePreview("PageBgImage", "pageBgPreview", "pageBgPreviewImg", $("#PageBgImage").val());
+	refreshAllPreviews();
+
+	bindBgUpload("HeaderNavBgChooseBtn", "HeaderNavBgFile", "HeaderNavBgUploadBtn",
+		"HeaderNavBgImage", "headerNavBgPreview", "headerNavBgPreviewImg", "header");
+	bindBgUpload("PageBgChooseBtn", "PageBgFile", "PageBgUploadBtn",
+		"PageBgImage", "pageBgPreview", "pageBgPreviewImg", "page");
+
+	$("#HeaderNavBgOpacity, #PageBgOpacity").on("input change", function() {
+		$("#" + this.id + "Val").text($(this).val());
+		refreshAllPreviews();
 	});
-	$("#PageBgOpacity").on("input change", function() {
-		$("#PageBgOpacityVal").text($(this).val());
-	});
+	$("#HeaderNavBgSize, #HeaderNavBgRepeat, #PageBgSize, #PageBgRepeat").change(refreshAllPreviews);
 
 	$(".delete-bg").click(function(e) {
 		e.preventDefault();
-		$("#" + $(this).data("target")).val("");
-		$("#" + $(this).data("preview")).hide();
+		var target = $(this).data("target");
+		var preview = $(this).data("preview");
+		var fileId = $(this).data("file");
+		if (target === "HeaderNavBgImage") {
+			revokePreviewUrl(pendingHeaderNavPreviewUrl);
+			pendingHeaderNavPreviewUrl = "";
+		} else if (target === "PageBgImage") {
+			revokePreviewUrl(pendingPagePreviewUrl);
+			pendingPagePreviewUrl = "";
+		}
+		$("#" + target).val("");
+		$("#" + preview).hide();
+		if (fileId) {
+			$("#" + fileId).val("");
+		}
+		refreshAllPreviews();
 	});
 
 	$("#baseBtn").click(function() {
@@ -169,29 +477,14 @@ $(function() {
 			BlogNavPosition: $("input[name='BlogNavPosition']:checked").val() || "left"
 		};
 		post("/member/blog/setUserBlogBackground", data, function(ret) {
-			showAlert("#baseMsg", "{{msg . "saveSuccess"}}", "success");
+			if (ret && ret.Ok) {
+				showAlert("#baseMsg", "{{msg . "saveSuccess"}}", "success");
+			} else {
+				showAlert("#baseMsg", (ret && ret.Msg) || "error", "danger");
+			}
 		}, this);
 	});
 });
-
-function uploadFinish(ret) {
-	if (ret) {
-		if (ret.resultCode == '1') {
-			var path = ret.filename;
-			if (path.indexOf("http") !== 0 && path.indexOf("/") !== 0) {
-				path = "/" + path;
-			}
-			$("#" + uploadTargetField).val(path);
-			$("#" + uploadTargetPreview + " img").attr("src", urlPrefix + path).parent().show();
-			uploadTargetField = "HeaderNavBgImage";
-			uploadTargetPreview = "headerNavBgPreview";
-			return;
-		}
-		alert(ret.result);
-		return;
-	}
-	alert("error");
-}
 </script>
 
 {{template "member/end.html" .}}

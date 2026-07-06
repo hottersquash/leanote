@@ -99,10 +99,12 @@ var leanoteStructBinder = revel.Binder{
 
 			if _, ok := fieldValues[fieldName]; !ok {
 				// Time to bind this field.  Get it and make sure we can set it.
-				fieldName = strings.Title(fieldName) // 传过来title, 但struct是Title
-				//				fmt.Println("xx: " + fieldName)
 				fieldValue := result.FieldByName(fieldName)
-				//				fmt.Println(fieldValue)
+				if !fieldValue.IsValid() {
+					// Backward compatible: simple keys like "title" -> "Title"
+					fieldName = strings.Title(fieldName)
+					fieldValue = result.FieldByName(fieldName)
+				}
 				if !fieldValue.IsValid() {
 					continue
 				}

@@ -124,6 +124,8 @@ start_leanote() {
   ln -sfn "$LEANOTE_ROOT" "$link_dir/leanote"
 
   nohup "$bin" -importPath github.com/leanote/leanote \
+    -srcPath "$LEANOTE_ROOT/bin/src" \
+    -runMode prod \
     > "$LEANOTE_LOG" 2>&1 &
   echo $! > "$LEANOTE_PID"
   wait_leanote

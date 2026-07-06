@@ -27,3 +27,5 @@ package/leanote.tar.gz
 package/leanote/
 leanote.log
 scripts/dev.env
+sh/*.tar.gz
+sh/leanote-assets.tar.gz

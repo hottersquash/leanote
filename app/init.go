@@ -51,6 +51,9 @@ func init() {
 	revel.TemplateFuncs["raw"] = func(str string) template.HTML {
 		return template.HTML(str)
 	}
+	revel.TemplateFuncs["rawCss"] = func(str string) template.CSS {
+		return template.CSS(str)
+	}
 	revel.TemplateFuncs["trim"] = func(str string) string {
 		str = strings.Trim(str, " ")
 		str = strings.Trim(str, " ")

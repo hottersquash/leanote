@@ -536,6 +536,9 @@ func (this *BlogService) fixUserBlog(userBlog *info.UserBlog) {
 		userBlog.ThemePath = themeService.GetDefaultThemePath(userBlog.Style)
 	} else {
 		userBlog.ThemePath = themeService.GetThemePath(userBlog.UserId.Hex(), userBlog.ThemeId.Hex())
+		if userBlog.ThemePath == "" {
+			userBlog.ThemePath = themeService.GetDefaultThemePath(userBlog.Style)
+		}
 	}
 	this.fixUserBlogBackground(userBlog)
 }
