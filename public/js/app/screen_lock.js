@@ -7,6 +7,8 @@ var ScreenLock = {
 	defaultWallpaper: '/images/slider/all.gif',
 
 	init: function() {
+		// 确保锁屏层在 body 最顶层，避免被页面 blur/filter 影响
+		$('#screenLockMask').appendTo('body');
 		this.loadSettings();
 		this.renderWallpaper();
 		this.bindEvents();
