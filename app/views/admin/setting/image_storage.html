@@ -12,9 +12,9 @@
 					<select class="form-control" name="provider">
 						<option value="local" {{if eq .str.imageStorageProvider "local"}}selected{{end}}>Local</option>
 						<option value="huawei_obs" {{if eq .str.imageStorageProvider "huawei_obs"}}selected{{end}}>Huawei Cloud OBS</option>
-						<option value="aliyun_oss" {{if eq .str.imageStorageProvider "aliyun_oss"}}selected{{end}}>Aliyun OSS (coming soon)</option>
-						<option value="tencent_cos" {{if eq .str.imageStorageProvider "tencent_cos"}}selected{{end}}>Tencent COS (coming soon)</option>
-						<option value="aws_s3" {{if eq .str.imageStorageProvider "aws_s3"}}selected{{end}}>AWS S3 (coming soon)</option>
+						<option value="aliyun_oss" {{if eq .str.imageStorageProvider "aliyun_oss"}}selected{{end}}>Aliyun OSS</option>
+						<option value="tencent_cos" {{if eq .str.imageStorageProvider "tencent_cos"}}selected{{end}}>Tencent COS</option>
+						<option value="aws_s3" {{if eq .str.imageStorageProvider "aws_s3"}}selected{{end}}>AWS S3</option>
 					</select>
 					Only note body images use this storage. Avatar, blog logo, albums, and attachments keep using local storage.
 				</div>
@@ -25,11 +25,12 @@
 				<div class="form-group">
 					<label>Endpoint</label>
 					<input type="text" class="form-control" name="endpoint" value="{{.str.imageStorageEndpoint}}" placeholder="obs.cn-north-4.myhuaweicloud.com">
-					Do not include the bucket name. Both https:// and plain host are accepted.
+					Do not include the bucket name. Examples: Huawei OBS <code>obs.cn-north-4.myhuaweicloud.com</code>, Aliyun OSS <code>oss-cn-hangzhou.aliyuncs.com</code>, Tencent COS <code>cos.ap-guangzhou.myqcloud.com</code>, AWS S3 <code>s3.us-west-2.amazonaws.com</code>. Both https:// and plain host are accepted.
 				</div>
 				<div class="form-group">
 					<label>Region</label>
 					<input type="text" class="form-control" name="region" value="{{.str.imageStorageRegion}}" placeholder="cn-north-4">
+					Required for Tencent COS and AWS S3. Aliyun OSS can use region instead of endpoint (e.g. <code>cn-hangzhou</code> builds <code>oss-cn-hangzhou.aliyuncs.com</code>).
 				</div>
 				<div class="form-group">
 					<label>Access Key</label>
