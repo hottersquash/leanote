@@ -26,6 +26,7 @@ func (c Admin) Index() revel.Result {
 
 // 模板
 func (c Admin) T(t string) revel.Result {
+	c.SetLocale()
 	c.ViewArgs["str"] = configService.GlobalStringConfigs
 	c.ViewArgs["arr"] = configService.GlobalArrayConfigs
 	c.ViewArgs["map"] = configService.GlobalMapConfigs
@@ -35,5 +36,6 @@ func (c Admin) T(t string) revel.Result {
 }
 
 func (c Admin) GetView(view string) revel.Result {
+	c.SetLocale()
 	return c.RenderTemplate("admin/" + view)
 }

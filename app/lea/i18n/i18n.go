@@ -193,6 +193,14 @@ func I18nFilter(c *revel.Controller, fc []revel.Filter) {
 
 // Set the current locale controller argument (CurrentLocaleControllerArg) with the given locale.
 func setCurrentLocaleControllerArguments(c *revel.Controller, locale string) {
+	locale = strings.ToLower(strings.Replace(locale, "_", "-", -1))
+	if locale != "" && !HasLang(locale) {
+		if strings.HasPrefix(locale, "zh") && HasLang("zh-cn") {
+			locale = "zh-cn"
+		} else if defaultLanguage, found := revel.Config.String(defaultLanguageOption); found {
+			locale = defaultLanguage
+		}
+	}
 	c.Request.Locale = locale
 	c.ViewArgs[CurrentLocaleViewArg] = locale
 }

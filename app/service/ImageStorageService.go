@@ -64,15 +64,16 @@ func (this *ImageStorageService) PutNoteImage(userId, filename string, data []by
 }
 
 func (this *ImageStorageService) config() imageStorageConfig {
+	bucket := strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageBucket"))
 	return imageStorageConfig{
 		Provider:      strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageProvider")),
-		Bucket:        strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageBucket")),
-		Endpoint:      normalizeStorageEndpoint(configService.GetGlobalStringConfig("imageStorageEndpoint")),
+		Bucket:        bucket,
+		Endpoint:      normalizeStorageEndpoint(configService.GetGlobalStringConfig("imageStorageEndpoint"), bucket),
 		Region:        strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageRegion")),
 		AccessKey:     strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageAccessKey")),
 		SecretKey:     strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageSecretKey")),
 		PublicBaseUrl: strings.TrimRight(strings.TrimSpace(configService.GetGlobalStringConfig("imageStoragePublicBaseUrl")), "/"),
-		ObjectPrefix:  strings.Trim(strings.TrimSpace(configService.GetGlobalStringConfig("imageStorageObjectPrefix")), "/"),
+		ObjectPrefix:  normalizeObjectPrefix(configService.GetGlobalStringConfig("imageStorageObjectPrefix")),
 	}
 }
 
@@ -82,6 +83,7 @@ func (this *ImageStorageService) buildObjectKey(prefix, userId, filename string)
 	cleanParts := []string{}
 	for _, part := range parts {
 		part = strings.Trim(part, "/")
+		part = strings.TrimSpace(part)
 		if part != "" {
 			cleanParts = append(cleanParts, part)
 		}
@@ -93,27 +95,40 @@ func (this *ImageStorageService) putHuaweiOBS(cfg imageStorageConfig, objectKey 
 	if cfg.Bucket == "" || cfg.Endpoint == "" || cfg.AccessKey == "" || cfg.SecretKey == "" {
 		return "", errors.New("huawei obs config requires bucket, endpoint, accessKey and secretKey")
 	}
+	if strings.HasPrefix(cfg.Endpoint, cfg.Bucket+".") {
+		return "", fmt.Errorf("huawei obs endpoint looks like a bucket domain (%s); use only the regional endpoint such as obs.cn-north-4.myhuaweicloud.com", cfg.Endpoint)
+	}
 
 	contentType := resolveContentType(data, objectKey)
 	host := cfg.Bucket + "." + cfg.Endpoint
-	objectUrl := "https://" + host + "/" + escapeObjectKey(objectKey)
+	escapedKey := escapeObjectKey(objectKey)
+	objectUrl := "https://" + host + "/" + escapedKey
 	req, err := http.NewRequest("PUT", objectUrl, bytes.NewReader(data))
 	if err != nil {
 		return "", err
 	}
+	// Keep the already-escaped path; Go would otherwise decode/re-encode and break OBS signing.
+	req.URL.Opaque = "//" + host + "/" + escapedKey
+	req.Host = host
 
-	date := time.Now().UTC().Format(http.TimeFormat)
-	req.Header.Set("Date", date)
+	// Prefer x-obs-date for signing (Date slot in StringToSign is empty). Still send Date
+	// for compatibility with proxies that expect it.
+	obsDate := time.Now().UTC().Format(http.TimeFormat)
+	req.Header.Set("Date", obsDate)
 	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	req.Header.Set("x-obs-acl", "public-read")
+	req.Header.Set("x-obs-date", obsDate)
 
+	// CanonicalizedResource must use the URI-encoded object name (same as request path).
 	stringToSign := strings.Join([]string{
 		"PUT",
 		"",
 		contentType,
-		date,
+		"",
 		"x-obs-acl:public-read",
-		"/" + cfg.Bucket + "/" + objectKey,
+		"x-obs-date:" + obsDate,
+		"/" + cfg.Bucket + "/" + escapedKey,
 	}, "\n")
 	req.Header.Set("Authorization", "OBS "+cfg.AccessKey+":"+hmacSha1Base64(cfg.SecretKey, stringToSign))
 
@@ -131,15 +146,19 @@ func (this *ImageStorageService) putAliyunOSS(cfg imageStorageConfig, objectKey 
 
 	contentType := resolveContentType(data, objectKey)
 	host := cfg.Bucket + "." + endpoint
-	objectUrl := "https://" + host + "/" + escapeObjectKey(objectKey)
+	escapedKey := escapeObjectKey(objectKey)
+	objectUrl := "https://" + host + "/" + escapedKey
 	req, err := http.NewRequest("PUT", objectUrl, bytes.NewReader(data))
 	if err != nil {
 		return "", err
 	}
+	req.URL.Opaque = "//" + host + "/" + escapedKey
+	req.Host = host
 
 	date := time.Now().UTC().Format(http.TimeFormat)
 	req.Header.Set("Date", date)
 	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	req.Header.Set("x-oss-acl", "public-read")
 
 	stringToSign := strings.Join([]string{
@@ -148,7 +167,7 @@ func (this *ImageStorageService) putAliyunOSS(cfg imageStorageConfig, objectKey 
 		contentType,
 		date,
 		"x-oss-acl:public-read",
-		"/" + cfg.Bucket + "/" + objectKey,
+		"/" + cfg.Bucket + "/" + escapedKey,
 	}, "\n")
 	req.Header.Set("Authorization", "OSS "+cfg.AccessKey+":"+hmacSha1Base64(cfg.SecretKey, stringToSign))
 
@@ -278,8 +297,15 @@ func (this *ImageStorageService) putAwsS3(cfg imageStorageConfig, objectKey stri
 	return doObjectUpload(req, "aws s3", objectUrl, cfg, objectKey)
 }
 
+var objectUploadClient = &http.Client{
+	Timeout: 120 * time.Second,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+}
+
 func doObjectUpload(req *http.Request, providerName, objectUrl string, cfg imageStorageConfig, objectKey string) (string, error) {
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := objectUploadClient.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -287,10 +313,48 @@ func doObjectUpload(req *http.Request, providerName, objectUrl string, cfg image
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return "", fmt.Errorf("%s upload failed: %s %s", providerName, resp.Status, strings.TrimSpace(string(body)))
+		return "", fmt.Errorf("%s upload failed: %s %s", providerName, resp.Status, formatObjectStorageError(body))
 	}
 
 	return buildPublicUrl(cfg, objectUrl, objectKey), nil
+}
+
+func formatObjectStorageError(body []byte) string {
+	text := strings.TrimSpace(string(body))
+	if text == "" {
+		return ""
+	}
+	code := xmlTagValue(text, "Code")
+	message := xmlTagValue(text, "Message")
+	stringToSign := xmlTagValue(text, "StringToSign")
+	parts := make([]string, 0, 3)
+	if code != "" {
+		parts = append(parts, code)
+	}
+	if message != "" {
+		parts = append(parts, message)
+	}
+	if stringToSign != "" {
+		parts = append(parts, "StringToSign="+strings.ReplaceAll(stringToSign, "\n", "\\n"))
+	}
+	if len(parts) == 0 {
+		return text
+	}
+	out := strings.Join(parts, " | ")
+	if code == "SignatureDoesNotMatch" {
+		out += " | Check Access Key / Secret Key pair; Endpoint must be regional host only (e.g. obs.cn-north-4.myhuaweicloud.com); Object Prefix must not contain spaces (use leanote/img not 'leanote / img')."
+	}
+	return out
+}
+
+func xmlTagValue(xmlBody, tag string) string {
+	start := strings.Index(xmlBody, "<"+tag+">")
+	end := strings.Index(xmlBody, "</"+tag+">")
+	if start < 0 || end < 0 || end <= start {
+		return ""
+	}
+	start += len(tag) + 2
+	return strings.TrimSpace(xmlBody[start:end])
 }
 
 func buildPublicUrl(cfg imageStorageConfig, objectUrl, objectKey string) string {
@@ -382,11 +446,47 @@ func deriveAwsSigningKey(secretKey, dateStamp, region string) []byte {
 	return hmacSha256(kService, "aws4_request")
 }
 
-func normalizeStorageEndpoint(endpoint string) string {
+func normalizeStorageEndpoint(endpoint, bucket string) string {
 	endpoint = strings.TrimSpace(endpoint)
 	endpoint = strings.TrimPrefix(endpoint, "https://")
 	endpoint = strings.TrimPrefix(endpoint, "http://")
-	return strings.Trim(endpoint, "/")
+	endpoint = strings.Trim(endpoint, "/")
+	if endpoint == "" {
+		return ""
+	}
+	// Drop any path the user may have pasted (bucket/object paths break Host parsing).
+	if i := strings.Index(endpoint, "/"); i >= 0 {
+		endpoint = endpoint[:i]
+	}
+	// Drop default HTTPS port if present.
+	endpoint = strings.TrimSuffix(endpoint, ":443")
+	bucket = strings.TrimSpace(bucket)
+	if bucket != "" {
+		prefix := bucket + "."
+		if strings.HasPrefix(endpoint, prefix) {
+			endpoint = strings.TrimPrefix(endpoint, prefix)
+		}
+	}
+	return endpoint
+}
+
+// NormalizeObjectPrefix turns "leanote / img" into "leanote/img".
+func NormalizeObjectPrefix(prefix string) string {
+	prefix = strings.TrimSpace(prefix)
+	prefix = strings.ReplaceAll(prefix, "\\", "/")
+	parts := strings.Split(prefix, "/")
+	clean := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			clean = append(clean, part)
+		}
+	}
+	return strings.Join(clean, "/")
+}
+
+func normalizeObjectPrefix(prefix string) string {
+	return NormalizeObjectPrefix(prefix)
 }
 
 func escapeObjectKey(key string) string {

@@ -1,5 +1,5 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Email Template</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminEmailTemplateTitle"}}</h3></div>
 
 <style>
 .preview {
@@ -15,12 +15,12 @@ label {
 <section class="panel panel-default">
 	<header class="panel-heading bg-light">
 		<ul class="nav nav-tabs nav-justified">
-			<li class="active"><a href="#tab1" data-toggle="tab">Layout</a></li>
-			<li class=""><a href="#tab2" data-toggle="tab">Register</a></li>
-			<li class=""><a href="#tab3" data-toggle="tab">Update Email</a></li>
-			<li ><a href="#tab4" data-toggle="tab">Find Passord</a></li>
-			<li ><a href="#tab5" data-toggle="tab">Invite Register</a></li>
-			<li ><a href="#tab6" data-toggle="tab">Blog Comment</a></li>
+			<li class="active"><a href="#tab1" data-toggle="tab">{{msg . "adminLayout"}}</a></li>
+			<li class=""><a href="#tab2" data-toggle="tab">{{msg . "adminRegister"}}</a></li>
+			<li class=""><a href="#tab3" data-toggle="tab">{{msg . "adminUpdateEmail"}}</a></li>
+			<li ><a href="#tab4" data-toggle="tab">{{msg . "adminFindPassword"}}</a></li>
+			<li ><a href="#tab5" data-toggle="tab">{{msg . "adminInviteRegister"}}</a></li>
+			<li ><a href="#tab6" data-toggle="tab">{{msg . "adminBlogComment"}}</a></li>
 			
 		</ul>
 	</header>
@@ -31,19 +31,19 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Layout</b>
+					<b>{{msg . "adminLayout"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>$.subject</code>
 						<code>$.siteUrl</code>
 					</div>
 					<div class="form-group">
-						<label>Header</label>
+						<label>{{msg . "adminHeader"}}</label>
 						<textarea type="text" id="emailHeader" rows="10" class="form-control" name="emailTemplateHeader">{{.str.emailTemplateHeader}}</textarea>
 					</div>
 					
 					<div class="form-group">
-						<label>Footer</label>
+						<label>{{msg . "adminFooter"}}</label>
 						<textarea type="text" id="emailFooter" rows="10" class="form-control" name="emailTemplateFooter">{{.str.emailTemplateFooter}}</textarea>
 					</div>
 				</div>
@@ -56,9 +56,9 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Register Welcome And Email Validation:</b>
+					<b>{{msg . "adminRegisterWelcome"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>header</code>
 						<code>footer</code>
 						<code>$.siteUrl</code>
@@ -70,16 +70,16 @@ label {
 						<code>$.user.username</code>
 					</div>
 					<div class="form-group">
-						<label>Subject</label>
+						<label>{{msg . "adminSubject"}}</label>
 						<input type="text" class="form-control" name="emailTemplateRegisterSubject" value="{{.str.emailTemplateRegisterSubject}}">
 					</div>
 					
 					<div class="form-group">
-						<label>Body</label>
+						<label>{{msg . "adminBody"}}</label>
 						<textarea type="text" rows="10" class="form-control" name="emailTemplateRegister">{{.str.emailTemplateRegister}}</textarea>
 					</div>
 					<div>
-						Preview
+						{{msg . "adminPreview"}}
 						<div class="preview">
 						</div>
 					</div>
@@ -93,9 +93,9 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Update Email and Send Active Email</b>
+					<b>{{msg . "adminUpdateEmailActive"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>header</code>
 						<code>footer</code>
 						<code>$.siteUrl</code>
@@ -108,17 +108,17 @@ label {
 					</div>
 				
 					<div class="form-group">
-						<label>Subject</label>
+						<label>{{msg . "adminSubject"}}</label>
 						<input type="text" class="form-control" name="emailTemplateUpdateEmailSubject" value="{{.str.emailTemplateUpdateEmailSubject}}">
 					</div>
 					
 					<div class="form-group">
-						<label>Body</label>
+						<label>{{msg . "adminBody"}}</label>
 						<textarea type="text" rows="10" class="form-control" name="emailTemplateUpdateEmail">{{.str.emailTemplateUpdateEmail}}</textarea>
 					</div>
 					
 					<div>
-						Preview
+						{{msg . "adminPreview"}}
 						<div class="preview">
 						</div>
 					</div>
@@ -133,9 +133,9 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Find Passord</b>
+					<b>{{msg . "adminFindPassword"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>header</code>
 						<code>footer</code>
 						<code>$.siteUrl</code>
@@ -145,17 +145,17 @@ label {
 					</div>
 				
 					<div class="form-group">
-						<label>Subject</label>
+						<label>{{msg . "adminSubject"}}</label>
 						<input type="text" class="form-control" name="emailTemplateFindPasswordSubject" value="{{.str.emailTemplateFindPasswordSubject}}">
 					</div>
 					
 					<div class="form-group">
-						<label>Body</label>
+						<label>{{msg . "adminBody"}}</label>
 						<textarea type="text" rows="10" class="form-control" name="emailTemplateFindPassword">{{.str.emailTemplateFindPassword}}</textarea>
 					</div>
 					
 					<div>
-						Preview
+						{{msg . "adminPreview"}}
 						<div class="preview">
 						</div>
 					</div>
@@ -170,9 +170,9 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Invite Register</b>
+					<b>{{msg . "adminInviteRegister"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>header</code>
 						<code>footer</code>
 						<code>$.siteUrl</code>
@@ -183,17 +183,17 @@ label {
 					</div>
 				
 					<div class="form-group">
-						<label>Subject</label>
+						<label>{{msg . "adminSubject"}}</label>
 						<input type="text" class="form-control" name="emailTemplateInviteSubject" value="{{.str.emailTemplateInviteSubject}}">
 					</div>
 					
 					<div class="form-group">
-						<label>Body</label>
+						<label>{{msg . "adminBody"}}</label>
 						<textarea type="text" rows="10" class="form-control" name="emailTemplateInvite">{{.str.emailTemplateInvite}}</textarea>
 					</div>
 					
 					<div>
-						Preview
+						{{msg . "adminPreview"}}
 						<div class="preview">
 						</div>
 					</div>
@@ -208,9 +208,9 @@ label {
 		<div class="col-sm-12">
 			<section class="panel panel-default">
 				<div class="panel-body">
-					<b>Blog Comment</b>
+					<b>{{msg . "adminBlogComment"}}</b>
 					<div>
-						Available tokens: 
+						{{msg . "adminAvailableTokens"}}
 						<code>header</code>
 						<code>footer</code>
 						<code>$.siteUrl</code>
@@ -238,17 +238,17 @@ label {
 					</div>
 					
 					<div class="form-group">
-						<label>Subject</label>
+						<label>{{msg . "adminSubject"}}</label>
 						<input type="text" class="form-control" name="emailTemplateCommentSubject" value="{{.str.emailTemplateCommentSubject}}">
 					</div>
 					
 					<div class="form-group">
-						<label>Body</label>
+						<label>{{msg . "adminBody"}}</label>
 						<textarea type="text" rows="10" class="form-control" name="emailTemplateComment">{{.str.emailTemplateComment}}</textarea>
 					</div>
 					
 					<div>
-						Preview
+						{{msg . "adminPreview"}}
 						<div class="preview">
 						</div>
 					</div>
@@ -263,7 +263,7 @@ label {
 </section>
 
 <footer class="panel-footer text-right bg-light lter">
-	<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+	<button type="submit" id="submit" class="btn btn-success btn-s-xs">{{msg . "adminSubmit"}}</button>
 </footer>
 
 </form>
@@ -314,7 +314,7 @@ $(function() {
 				if(!ret.Ok) {
 					art.alert(ret.Msg)
 				} else {
-					art.tips("Success");
+					art.tips("{{msg . "adminSuccess"}}");
 				}
 			});
 		}

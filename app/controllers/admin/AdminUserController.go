@@ -17,6 +17,7 @@ type AdminUser struct {
 var userPageSize = 10
 
 func (c AdminUser) Index(sorter, keywords string, pageSize int) revel.Result {
+	c.SetLocale()
 	pageNumber := c.GetPage()
 	if pageSize == 0 {
 		pageSize = userPageSize
@@ -30,6 +31,7 @@ func (c AdminUser) Index(sorter, keywords string, pageSize int) revel.Result {
 }
 
 func (c AdminUser) Add() revel.Result {
+	c.SetLocale()
 	return c.RenderTemplate("admin/user/add.html")
 }
 
@@ -52,6 +54,7 @@ func (c AdminUser) Register(email, pwd string) revel.Result {
 
 // 修改帐户
 func (c AdminUser) ResetPwd(userId string) revel.Result {
+	c.SetLocale()
 	userInfo := userService.GetUserInfo(userId)
 	c.ViewArgs["userInfo"] = userInfo
 	return c.RenderTemplate("admin/user/reset_pwd.html")

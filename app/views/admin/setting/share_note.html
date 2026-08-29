@@ -1,5 +1,5 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Register Share Note</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminRegisterShareNote"}}</h3></div>
 
 <div class="row">
 
@@ -8,11 +8,11 @@
 		<section class="panel panel-default">
 			<div class="panel-body">
 				<div class="form-group">
-					<label>Shared UserId</label>
+					<label>{{msg . "adminSharedUserId"}}</label>
 					<input type="text" class="form-control" name="registerSharedUserId" value="{{.str.registerSharedUserId}}">
 				</div>
 				<div class="form-group">
-					<label>Shared Notebooks</label>
+					<label>{{msg . "adminSharedNotebooks"}}</label>
 					<div class="clearfix" id="notebooks">
 						{{range $notebook := .arrMap.registerSharedNotebooks}}
 						<div class="row">
@@ -23,8 +23,8 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotebookPerms[]">
-								<option value="0" {{if eq $notebook.perm "0"}}selected{{end}}>Read Only</option>
-								<option value="1" {{if eq $notebook.perm "1"}}selected{{end}}>Writable</option>
+								<option value="0" {{if eq $notebook.perm "0"}}selected{{end}}>{{msg $ "adminReadOnly"}}</option>
+								<option value="1" {{if eq $notebook.perm "1"}}selected{{end}}>{{msg $ "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
@@ -37,8 +37,8 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotebookPerms[]">
-								<option value="0">Read Only</option>
-								<option value="1">Writable</option>
+								<option value="0">{{msg . "adminReadOnly"}}</option>
+								<option value="1">{{msg . "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
@@ -48,17 +48,17 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotebookPerms[]">
-								<option value="0">Read Only</option>
-								<option value="1">Writable</option>
+								<option value="0">{{msg . "adminReadOnly"}}</option>
+								<option value="1">{{msg . "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
 					</div>
-					The notebooks will shared to register user
+					{{msg . "adminSharedNotebooksTip"}}
 				</div>
 				
 				<div class="form-group">
-					<label>Shared Notes</label>
+					<label>{{msg . "adminSharedNotes"}}</label>
 					<div class="clearfix" id="notebooks">
 						{{range $note := .arrMap.registerSharedNotes}}
 						<div class="row">
@@ -69,8 +69,8 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotePerms[]">
-								<option value="0" {{if eq $note.perm "0"}}selected{{end}}>Read Only</option>
-								<option value="1" {{if eq $note.perm "1"}}selected{{end}}>Writable</option>
+								<option value="0" {{if eq $note.perm "0"}}selected{{end}}>{{msg $ "adminReadOnly"}}</option>
+								<option value="1" {{if eq $note.perm "1"}}selected{{end}}>{{msg $ "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
@@ -82,8 +82,8 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotePerms[]">
-								<option value="0">Read Only</option>
-								<option value="1">Writable</option>
+								<option value="0">{{msg . "adminReadOnly"}}</option>
+								<option value="1">{{msg . "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
@@ -94,17 +94,17 @@
 						  </div>
 						  <div class="col-xs-4">
 	  						<select class="form-control" name="registerSharedNotePerms[]">
-								<option value="0">Read Only</option>
-								<option value="1">Writable</option>
+								<option value="0">{{msg . "adminReadOnly"}}</option>
+								<option value="1">{{msg . "adminWritable"}}</option>
 							</select>
 						  </div>
 						</div>
 					</div>
-					The notes will shared to register user
+					{{msg . "adminSharedNotesTip"}}
 				</div>
 				
 				<div class="form-group">
-					<label>Copy Notes</label>
+					<label>{{msg . "adminCopyNotes"}}</label>
 					<div class="clearfix" id="notebooks">
 						{{range $noteId := .arr.registerCopyNoteIds}}
 						<div class="row">
@@ -129,12 +129,12 @@
 						  </div>
 						</div>
 					</div>
-					The notes will copy to register user
+					{{msg . "adminCopyNotesTip"}}
 				</div>
 			</div>
 			
 			<footer class="panel-footer text-right bg-light lter">
-				<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+				<button type="submit" id="submit" class="btn btn-success btn-s-xs">{{msg . "adminSubmit"}}</button>
 			</footer>
 		</section>
 	</form>
@@ -162,7 +162,7 @@ $(function() {
 					if(!ret.Ok) {
 						art.alert(ret.Msg)
 					} else {
-						art.tips(ret.Msg || "Success");
+						art.tips(ret.Msg || "{{msg . "adminSuccess"}}");
 					}
 				});
 			}

@@ -173,6 +173,7 @@ func (c AdminEmail) SendToUsers2(emails, latestEmailSubject, latestEmailBody str
 
 // send Email dialog
 func (c AdminEmail) SendEmailDialog(emails string) revel.Result {
+	c.SetLocale()
 	emailsArr := strings.Split(emails, ",")
 	emailsNl := strings.Join(emailsArr, "\n")
 
@@ -226,6 +227,7 @@ func (c AdminEmail) DeleteEmails(ids string) revel.Result {
 }
 
 func (c AdminEmail) List(sorter, keywords string) revel.Result {
+	c.SetLocale()
 	pageNumber := c.GetPage()
 	sorterField, isAsc := c.getSorter("CreatedTime", false, []string{"email", "ok", "subject", "createdTime"})
 	pageInfo, emails := emailService.ListEmailLogs(pageNumber, userPageSize, sorterField, isAsc, keywords)

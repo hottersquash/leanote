@@ -1,5 +1,5 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Home Page</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminHomePage"}}</h3></div>
 
 <div class="row">
 
@@ -8,18 +8,18 @@
 		<section class="panel panel-default">
 			<div class="panel-body">
 				<div class="form-group">
-					<label><a href="/blog" target="_blank">Admin's Blog Page</a></label>
+					<label><a href="/blog" target="_blank">{{msg . "adminAdminsBlogPage"}}</a></label>
 					<input type="radio" class="form-control" name="homePage" {{if not .str.homePage}}checked="checked"{{end}} value="0">
 				</div>
 				
 				<div class="form-group">
-					<label><a href="/index" target="_blank">Index Page</a></label>
+					<label><a href="/index" target="_blank">{{msg . "adminIndexPage"}}</a></label>
 					<input type="radio" class="form-control" name="homePage" {{if .str.homePage}}checked="checked"{{end}} value="1">
 				</div>
 			</div>
 			
 			<footer class="panel-footer text-right bg-light lter">
-				<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+				<button type="submit" id="submit" class="btn btn-success btn-s-xs">{{msg . "adminSubmit"}}</button>
 			</footer>
 		</section>
 	</form>
@@ -39,7 +39,7 @@ $(function() {
 			if(!ret.Ok) {
 				art.alert(ret.Msg);
 			} else {
-				art.tips("Success");
+				art.tips("{{msg . "adminSuccess"}}");
 			}
 		});
 	});

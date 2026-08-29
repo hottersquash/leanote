@@ -5,6 +5,7 @@ import (
 	//	. "github.com/leanote/leanote/app/lea"
 	"fmt"
 	"github.com/leanote/leanote/app/info"
+	"github.com/leanote/leanote/app/service"
 	"strings"
 )
 
@@ -158,6 +159,6 @@ func (c AdminSetting) ImageStorage(provider, bucket, endpoint, region, accessKey
 	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageAccessKey", strings.TrimSpace(accessKey)) && re.Ok
 	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageSecretKey", strings.TrimSpace(secretKey)) && re.Ok
 	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStoragePublicBaseUrl", strings.TrimSpace(publicBaseUrl)) && re.Ok
-	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageObjectPrefix", strings.Trim(strings.TrimSpace(objectPrefix), "/")) && re.Ok
+	re.Ok = configService.UpdateGlobalStringConfig(userId, "imageStorageObjectPrefix", service.NormalizeObjectPrefix(objectPrefix)) && re.Ok
 	return c.RenderJSON(re)
 }

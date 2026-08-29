@@ -1,43 +1,43 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Send Email to Users</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminSendEmailToUsers"}}</h3></div>
 
 <div class="row">
 
 <div class="col-sm-12">
 	<form id="formContainer">
 		<section class="panel panel-default">
-			<header class="panel-heading font-bold">User filter</header>
+			<header class="panel-heading font-bold">{{msg . "adminUserFilter"}}</header>
 			<div class="panel-body">
 				<div class="form-group">
-					<label>Search Email/Username</label>
+					<label>{{msg . "adminSearchEmailUsername"}}</label>
 					<input type="text" class="form-control" name="userFilterEmail" value="{{.str.userFilterEmail}}">
 				</div>
 				
 				<div class="form-group">
-					<label class="checkbox-inline"> <input type="checkbox" name="verified" value="1"> Verfied </label>
+					<label class="checkbox-inline"> <input type="checkbox" name="verified" value="1"> {{msg . "adminVerifiedFilter"}} </label>
 				</div>
 				
 				<div class="form-group">
-					<label>White List</label>
+					<label>{{msg . "adminWhiteList"}}</label>
 					<textarea type="text" rows="10" class="form-control" name="userFilterWhiteList">{{.str.userFilterWhiteList}}</textarea>
-					input email line by line
+					{{msg . "adminEmailListTip"}}
 				</div>
 				
 				<div class="form-group">
-					<label>Black List</label>
+					<label>{{msg . "adminBlackList"}}</label>
 					<textarea type="text" rows="10" class="form-control" name="userFilterBlackList">{{.str.userFilterBlackList}}</textarea>
-					input email line by line
+					{{msg . "adminEmailListTip"}}
 				</div>
 			</div>
 		</section>
 		
 		<section class="panel panel-default">
-			<header class="panel-heading font-bold">Email</header>
+			<header class="panel-heading font-bold">{{msg . "adminEmail"}}</header>
 			<div class="panel-body">
 				<div class="form-group">
-					<label>Select Old Email</label>
+					<label>{{msg . "adminSelectOldEmail"}}</label>
 					<select class="form-control old-emails">
-						<option value="">---Select---</option>
+						<option value="">{{msg . "adminSelectPlaceholder"}}</option>
 						{{range $subject, $body := .map.oldEmails}}
 							<option>
 								{{$subject}}
@@ -47,19 +47,19 @@
 				</div>
 				
 				<div class="form-group">
-					<label>Subject</label>
+					<label>{{msg . "adminSubject"}}</label>
 					<input type="text" class="form-control" id="latestEmailSubject" name="latestEmailSubject" value="{{$.str.latestEmailSubject}}">
 				</div>
 				
 				<div class="form-group">
-					<label>Body</label>
+					<label>{{msg . "adminBody"}}</label>
 					<textarea type="text" rows="10" id="latestEmailBody" class="form-control" name="latestEmailBody">{{$.str.latestEmailBody}}</textarea>
 				</div>
-				<label class="checkbox-inline"> <input type="checkbox" id="saveAsOldEmail" name="saveAsOldEmail" value="1"> Save As Old Email </label>
+				<label class="checkbox-inline"> <input type="checkbox" id="saveAsOldEmail" name="saveAsOldEmail" value="1"> {{msg . "adminSaveAsOldEmail"}} </label>
 			</div>
 			
 			<footer class="panel-footer text-right bg-light lter">
-				<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+				<button type="submit" id="submit" class="btn btn-success btn-s-xs">{{msg . "adminSubmit"}}</button>
 			</footer>
 		</section>
 	</form>
@@ -94,7 +94,7 @@ $(function() {
 					if(!ret.Ok) {
 						art.alert(ret.Msg)
 					} else {
-						art.tips("Success");
+						art.tips("{{msg . "adminSuccess"}}");
 					}
 				});
 			}

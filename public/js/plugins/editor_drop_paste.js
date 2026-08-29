@@ -150,7 +150,7 @@ define('editor_drop_paste', ['fileupload'], function() {
 	        dataType: 'json',
 	        pasteZone: '', // 不允许paste
 	        acceptFileTypes: /(\.|\/)(gif|jpg|jpeg|png|jpe)$/i,
-	        maxFileSize: 210000,
+	        // Size limit is enforced by the server (uploadImageSize)
 	
 	        // This element will accept file drag/drop uploading
 	        dropZone: $('#drop'),
@@ -280,29 +280,69 @@ define('editor_drop_paste', ['fileupload'], function() {
 
 	var lastTime = 0;
 
+	function clipboardImageFiles(clipboardData) {
+		var files = [];
+		if (!clipboardData || !clipboardData.items) {
+			return files;
+		}
+		for (var i = 0; i < clipboardData.items.length; i++) {
+			var item = clipboardData.items[i];
+			if (item && item.kind === 'file' && item.type && item.type.indexOf('image/') === 0) {
+				var file = item.getAsFile && item.getAsFile();
+				if (file) {
+					files.push(file);
+				}
+			}
+		}
+		return files;
+	}
+
+	// ACE owns paste on .ace_text-input and always preventDefault when clipboard text API
+	// returns a string (including ""). Capture-phase handler uploads images before ACE.
+	function bindMarkdownPasteCapture() {
+		var mdRoot = document.getElementById('mdEditor');
+		if (!mdRoot || mdRoot.__leanotePasteBound) {
+			return;
+		}
+		mdRoot.__leanotePasteBound = true;
+		mdRoot.addEventListener('paste', function (e) {
+			var note = Note.getCurNote();
+			if (!note || !note.IsMarkdown) {
+				return;
+			}
+			var files = clipboardImageFiles(e.clipboardData);
+			if (!files.length) {
+				return;
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			try {
+				$('#left-column').fileupload('add', {files: files});
+			} catch (err) {
+				console && console.error && console.error(err);
+			}
+		}, true);
+	}
+
 	// pasteImage
 	var pasteImageInit =  function() {
 		var curNote;
 	    // Initialize the jQuery File Upload plugin
 	    var dom, editor;
-	    // 2015/4/17 添加wmd-input markdown paste image
-	    $('#editorContent, #left-column').fileupload({
+	    // Include #mdEditor / #wmd-input so paste can bubble from ACE when capture is skipped
+	    var $pasteTargets = $('#editorContent, #left-column, #mdEditor, #wmd-input');
+	    $pasteTargets.fileupload({
 	        dataType: 'json',
-	        pasteZone: $('#editorContent, #left-column'),
+	        pasteZone: $pasteTargets,
 	        dropZone: '', // 只允许paste
-	        maxFileSize: 210000,
+	        // Size limit is enforced by the server (uploadImageSize)
 	        url: "/file/pasteImage",
 	        paramName: 'file',
 	        formData: function(form) {
 	        	return [{name: 'from', value: 'pasteImage'}, {name: 'noteId', value: Note.curNoteId}]
 	        },
-	        /*
-	        paste: function(e, data) {
-	        	var jqXHR = data.submit();
-	        },
-	        */
 	        progress: function(e, data) {
-	        	if(curNote && !curNote.IsMarkdown) {
+	        	if(curNote && !curNote.IsMarkdown && data.process) {
 		        	data.process.update(data.loaded / data.total);
 	        	}
 	        },
@@ -311,12 +351,10 @@ define('editor_drop_paste', ['fileupload'], function() {
 	        // 不知道为什么会触发两次
 	        add: function(e, data) {
 	        	// 防止两次
-        		// console.trace(e);
 	        	var now = (new Date()).getTime();
 	        	if (now - lastTime < 500) {
 	        		return;
 	        	}
-	        	// console.log('nono');
 	        	lastTime = now;
 
 	        	var note = Note.getCurNote();
@@ -326,41 +364,53 @@ define('editor_drop_paste', ['fileupload'], function() {
 	        		// return;
 	        	}
 	        	
-	        	// LEA.removePasteBin();
 	        	// 为什么要延迟? 为了让paste plugin先执行, 删除掉paste bin
 	        	setTimeout(function () {
-		        	// 先显示loading...
 					editor = tinymce.EditorManager.activeEditor; 
-					if(!note.IsMarkdown) {
-						var process = new Process(editor);
+					if(note && !note.IsMarkdown) {
+						data.process = new Process(editor);
 					}
-					data.process = process;
 		            var jqXHR = data.submit();
 	        	}, 20);
 	        },
 	
 	        done: function(e, data) {
 	            if (data.result.Ok == true) {
-		    		// 这里, 如果图片宽度过大, 这里设置成500px
+		    		// Prefer cloud/CDN URL from Image Storage; fall back to local fileId serve path
 		    		var re = data.result;
 					var src = re.Url || ("/api/file/getImage?fileId=" + re.Id);
+					var note = curNote || Note.getCurNote();
 
-					if(curNote && !curNote.IsMarkdown) {
-						data.process.replace(src);
+					if(note && !note.IsMarkdown) {
+						data.process && data.process.replace(src);
 					} else {
 						MD && MD.insertLink(src, 'title', true);
 					}
 				
 	            } else {
-					data.process.remove();
+					if (data.process) {
+						data.process.remove();
+					}
+					var msg = (data.result && data.result.Msg) || getMsg('Error');
+					if (typeof art !== 'undefined' && art.alert) {
+						art.alert(msg);
+					} else {
+						alert(msg);
+					}
 	            }
 	        },
 	        fail: function(e, data) {
-	        	if(curNote && !curNote.IsMarkdown) {
+	        	if(data.process) {
 					data.process.remove();
+				}
+				var msg = (data.jqXHR && data.jqXHR.responseJSON && data.jqXHR.responseJSON.Msg) || data.errorThrown || getMsg('Error');
+				if (typeof art !== 'undefined' && art.alert) {
+					art.alert(msg);
 				}
 	        }
 	    });
+
+		bindMarkdownPasteCapture();
 	};
 	
 	initUploader();

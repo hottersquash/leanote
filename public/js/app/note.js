@@ -721,20 +721,9 @@ Note.renderChangedNote = function(changedNote) {
 	if(changedNote.Desc) {
 		$leftNoteNav.find(".desc").html(trimTitle(changedNote.Desc));
 	}
-	if(changedNote.ImgSrc) {
-		$thumb = $leftNoteNav.find(".item-thumb");
-		// 有可能之前没有图片
-		if($thumb.length > 0) {
-			$thumb.find("img").attr("src", changedNote.ImgSrc);
-		} else {
-			$leftNoteNav.append(tt('<div class="item-thumb" style=""><img src="?"></div>', changedNote.ImgSrc));
-			$leftNoteNav.addClass("item-image");
-		}
-		$leftNoteNav.find(".item-desc").removeAttr("style");
-	} else if(changedNote.ImgSrc == "") {
-		$leftNoteNav.find(".item-thumb").remove(); // 以前有, 现在没有了
-		$leftNoteNav.removeClass("item-image");
-	}
+	// 摘要视图不显示缩略图
+	$leftNoteNav.find(".item-thumb").remove();
+	$leftNoteNav.removeClass("item-image");
 };
 
 // 清空右侧note信息, 可能是共享的, 
@@ -1059,12 +1048,8 @@ Note._renderNotes = function(notes, forNewNote, isShared, tang) { // 第几趟
 			classes += " item-active";
 		}
 
-		var tmp;
-		if(note.ImgSrc) {
-			tmp = tt(Note.itemTpl, classes, i, note.NoteId, note.ImgSrc, note.Title, Notebook.getNotebookTitle(note.NotebookId), goNowToDatetime(note.UpdatedTime), note.Desc);
-		} else {
-			tmp = tt(Note.itemTplNoImg, classes, i, note.NoteId, note.Title, Notebook.getNotebookTitle(note.NotebookId), goNowToDatetime(note.UpdatedTime), note.Desc);
-		}
+		// 摘要视图不显示缩略图
+		var tmp = tt(Note.itemTplNoImg, classes, i, note.NoteId, note.Title, Notebook.getNotebookTitle(note.NotebookId), goNowToDatetime(note.UpdatedTime), note.Desc);
 		tmp = $(tmp);
 		if(!note.IsBlog) {
 			tmp.removeClass('item-b');

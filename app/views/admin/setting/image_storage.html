@@ -1,5 +1,5 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Image Storage</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminImageStorage"}}</h3></div>
 
 <div class="row">
 
@@ -8,52 +8,52 @@
 		<section class="panel panel-default">
 			<div class="panel-body">
 				<div class="form-group">
-					<label>Provider</label>
+					<label>{{msg . "adminProvider"}}</label>
 					<select class="form-control" name="provider">
-						<option value="local" {{if eq .str.imageStorageProvider "local"}}selected{{end}}>Local</option>
-						<option value="huawei_obs" {{if eq .str.imageStorageProvider "huawei_obs"}}selected{{end}}>Huawei Cloud OBS</option>
-						<option value="aliyun_oss" {{if eq .str.imageStorageProvider "aliyun_oss"}}selected{{end}}>Aliyun OSS</option>
-						<option value="tencent_cos" {{if eq .str.imageStorageProvider "tencent_cos"}}selected{{end}}>Tencent COS</option>
-						<option value="aws_s3" {{if eq .str.imageStorageProvider "aws_s3"}}selected{{end}}>AWS S3</option>
+						<option value="local" {{if eq .str.imageStorageProvider "local"}}selected{{end}}>{{msg . "adminLocal"}}</option>
+						<option value="huawei_obs" {{if eq .str.imageStorageProvider "huawei_obs"}}selected{{end}}>{{msg . "adminHuaweiObs"}}</option>
+						<option value="aliyun_oss" {{if eq .str.imageStorageProvider "aliyun_oss"}}selected{{end}}>{{msg . "adminAliyunOss"}}</option>
+						<option value="tencent_cos" {{if eq .str.imageStorageProvider "tencent_cos"}}selected{{end}}>{{msg . "adminTencentCos"}}</option>
+						<option value="aws_s3" {{if eq .str.imageStorageProvider "aws_s3"}}selected{{end}}>{{msg . "adminAwsS3"}}</option>
 					</select>
-					Only note body images use this storage. Avatar, blog logo, albums, and attachments keep using local storage.
+					{{msg . "adminImageStorageScope"}}
 				</div>
 				<div class="form-group">
-					<label>Bucket</label>
+					<label>{{msg . "adminBucket"}}</label>
 					<input type="text" class="form-control" name="bucket" value="{{.str.imageStorageBucket}}" placeholder="leanote-images">
 				</div>
 				<div class="form-group">
-					<label>Endpoint</label>
+					<label>{{msg . "adminEndpoint"}}</label>
 					<input type="text" class="form-control" name="endpoint" value="{{.str.imageStorageEndpoint}}" placeholder="obs.cn-north-4.myhuaweicloud.com">
-					Do not include the bucket name. Examples: Huawei OBS <code>obs.cn-north-4.myhuaweicloud.com</code>, Aliyun OSS <code>oss-cn-hangzhou.aliyuncs.com</code>, Tencent COS <code>cos.ap-guangzhou.myqcloud.com</code>, AWS S3 <code>s3.us-west-2.amazonaws.com</code>. Both https:// and plain host are accepted.
+					{{msg . "adminEndpointHelp"}}
 				</div>
 				<div class="form-group">
-					<label>Region</label>
+					<label>{{msg . "adminRegion"}}</label>
 					<input type="text" class="form-control" name="region" value="{{.str.imageStorageRegion}}" placeholder="cn-north-4">
-					Required for Tencent COS and AWS S3. Aliyun OSS can use region instead of endpoint (e.g. <code>cn-hangzhou</code> builds <code>oss-cn-hangzhou.aliyuncs.com</code>).
+					{{msg . "adminRegionHelp"}}
 				</div>
 				<div class="form-group">
-					<label>Access Key</label>
+					<label>{{msg . "adminAccessKey"}}</label>
 					<input type="text" class="form-control" name="accessKey" value="{{.str.imageStorageAccessKey}}">
 				</div>
 				<div class="form-group">
-					<label>Secret Key</label>
+					<label>{{msg . "adminSecretKey"}}</label>
 					<input type="password" class="form-control" name="secretKey" value="{{.str.imageStorageSecretKey}}">
 				</div>
 				<div class="form-group">
-					<label>Public Base URL</label>
+					<label>{{msg . "adminPublicBaseUrl"}}</label>
 					<input type="text" class="form-control" name="publicBaseUrl" value="{{.str.imageStoragePublicBaseUrl}}" placeholder="https://cdn.example.com">
-					Optional. If blank, Leanote builds URLs from bucket and endpoint.
+					{{msg . "adminPublicBaseUrlHelp"}}
 				</div>
 				<div class="form-group">
-					<label>Object Prefix</label>
+					<label>{{msg . "adminObjectPrefix"}}</label>
 					<input type="text" class="form-control" name="objectPrefix" value="{{.str.imageStorageObjectPrefix}}" placeholder="leanote/images">
-					Optional. The user and date path will be appended below this prefix.
+					{{msg . "adminObjectPrefixHelp"}}
 				</div>
 			</div>
 
 			<footer class="panel-footer text-right bg-light lter">
-				<button type="submit" id="submit" class="btn btn-success btn-s-xs">Submit</button>
+				<button type="submit" id="submit" class="btn btn-success btn-s-xs">{{msg . "adminSubmit"}}</button>
 			</footer>
 		</section>
 	</form>
@@ -75,9 +75,9 @@ $(function() {
 			ajaxPost("/adminSetting/imageStorage", getFormJsonData("image_storage_form"), function(ret){
 				$(t).button('reset');
 				if(!ret.Ok) {
-					art.alert(ret.Msg || "Save failed");
+					art.alert(ret.Msg || "{{msg . "adminSaveFailed"}}");
 				} else {
-					art.tips("Success");
+					art.tips("{{msg . "adminSuccess"}}");
 				}
 			});
 		}

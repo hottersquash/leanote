@@ -18,6 +18,7 @@ type AdminData struct {
 }
 
 func (c AdminData) Index() revel.Result {
+	c.SetLocale()
 	backups := configService.GetGlobalArrMapConfig("backups")
 	// 逆序之
 	backups2 := make([]map[string]string, len(backups))

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<title>
-		leanote admin
+		{{msg . "adminTitle"}}
 	</title>
 	<meta name="description" content="leanote admin"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
@@ -23,29 +23,29 @@
 			<div class="navbar-header logo-ctn">
 				<a href="/admin/index" class="navbar-brand clearfix" data-toggle="fullscreen">
 					<span id="logo"></span>
-					<span class="logo-title">Admin</span>
+					<span class="logo-title">{{msg . "admin"}}</span>
 				</a>
 			</div>
 			
 			<ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user">
 				<li class="hidden-xs">
 					<a href="/" class="dk">
-						Home
+						{{msg . "adminHome"}}
 					</a>
 				</li>
 				<li class="hidden-xs">
 					<a href="/note" class="dk">
-						My Note
+						{{msg . "adminMyNote"}}
 					</a>
 				</li>
 				<li class="hidden-xs">
 					<a href="/blog" class="dk">
-						My Blog
+						{{msg . "adminMyBlog"}}
 					</a>
 				</li>
 				<li class="hidden-xs">
 					<a href="/logout" class="dk">
-						Logout
+						{{msg . "adminLogout"}}
 					</a>
 				</li>
 			</ul>

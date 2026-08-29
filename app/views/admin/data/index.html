@@ -1,5 +1,5 @@
 {{template "admin/top.html" .}}
-<div class="m-b-md"> <h3 class="m-b-none">Backup & Restore</h3></div>
+<div class="m-b-md"> <h3 class="m-b-none">{{msg . "adminBackupRestore"}}</h3></div>
 
 <style>
 .break-all {
@@ -11,7 +11,7 @@
 	
 	<div class="row wrapper">
 		<div class="col-sm-5 m-b-xs">
-			<button class="btn btn-primary backup-btn">Backup</button>
+			<button class="btn btn-primary backup-btn">{{msg . "adminBackup"}}</button>
 		</div>
 		
 	</div>
@@ -21,13 +21,13 @@
 			<thead>
 				<tr>
 					<th width="136px">
-						Date
+						{{msg . "adminDate"}}
 					</th>
 					<th width="">
-						Remark
+						{{msg . "adminRemark"}}
 					</th>
 					<th>
-						Path
+						{{msg . "adminPath"}}
 					</th>
 					<th width="170px">
 					</th>
@@ -46,9 +46,9 @@
 						{{$each.path}}
 					</td>
 					<td>
-						<button href="#" class="btn btn-sm btn-danger restore-btn" data-id="{{$each.createdTime}}">Restore</button>
-						<a class="btn btn-sm btn-default download-attach" href="/adminData/download?createdTime={{$each.createdTime}}" target="_blank" title="Download"  data-id=""><i class="fa fa-download"></i></a>
-						<button class="btn btn-sm btn-warning delete-btn" title="Delete" data-id="{{$each.createdTime}}"><i class="fa fa-trash-o"></i></button>
+						<button href="#" class="btn btn-sm btn-danger restore-btn" data-id="{{$each.createdTime}}">{{msg $ "adminRestore"}}</button>
+						<a class="btn btn-sm btn-default download-attach" href="/adminData/download?createdTime={{$each.createdTime}}" target="_blank" title="{{msg $ "adminDownload"}}"  data-id=""><i class="fa fa-download"></i></a>
+						<button class="btn btn-sm btn-warning delete-btn" title="{{msg $ "adminDelete"}}" data-id="{{$each.createdTime}}"><i class="fa fa-trash-o"></i></button>
 					</td>
 				</tr>
 				{{end}}
@@ -64,7 +64,7 @@ $(function() {
 	$(".backup-btn").click(function(){ 
 		ajaxGet("/adminData/backup", {}, function(ret) {
 			if(ret.Ok) {
-				art.tips("Success");
+				art.tips("{{msg . "adminSuccess"}}");
 				location.reload();
 			} else {
 				art.alert(ret.Msg);
@@ -74,10 +74,10 @@ $(function() {
 	// 还原
 	$(".restore-btn").click(function() {
 		var createdTime = $(this).data("id");
-		art.confirm("Are you sure? <br />Note. Leanote will do the following steps: <br />1)Backup the current database first. <br />2) And then delete the database. <br />3) Restore database from the selected version.", function() {
+		art.confirm("{{msg . "adminRestoreConfirm"}}", function() {
 			ajaxGet("/adminData/restore", {createdTime: createdTime}, function(ret) {
 				if(ret.Ok) {
-					art.tips("Success");
+					art.tips("{{msg . "adminSuccess"}}");
 					location.reload();
 				} else {
 					art.alert(ret.Msg);
@@ -87,10 +87,10 @@ $(function() {
 	});
 	$(".delete-btn").click(function() {
 		var createdTime = $(this).data("id");
-		art.confirm("Are you sure?", function() {
+		art.confirm("{{msg . "adminAreYouSure"}}", function() {
 			ajaxGet("/adminData/delete", {createdTime: createdTime}, function(ret) {
 				if(ret.Ok) {
-					art.tips("Success");
+					art.tips("{{msg . "adminSuccess"}}");
 					location.reload();
 				} else {
 					art.alert(ret.Msg);
@@ -103,7 +103,7 @@ $(function() {
 		var remark = $(this).val();
 		ajaxPost("/adminData/updateRemark", {createdTime: createdTime, remark: remark}, function(ret) {
 			if(ret.Ok) {
-				art.tips("Update Remark Success");
+				art.tips("{{msg . "adminUpdateRemarkSuccess"}}");
 			} else {
 				art.alert(ret.Msg);
 			}

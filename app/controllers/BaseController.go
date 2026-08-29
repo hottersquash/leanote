@@ -174,11 +174,17 @@ func (c BaseController) SetLocale() string {
 	// if lang != "zh" && lang != "en" {
 	// 	lang = "en"
 	// }
-	lang := locale
-	if !i18n.HasLang(locale) {
-		lang = i18n.GetDefaultLang()
+	lang := strings.ToLower(strings.Replace(locale, "_", "-", -1))
+	if !i18n.HasLang(lang) {
+		if strings.HasPrefix(lang, "zh") && i18n.HasLang("zh-cn") {
+			lang = "zh-cn"
+		} else {
+			lang = i18n.GetDefaultLang()
+		}
 	}
 	c.ViewArgs["locale"] = lang
+	c.ViewArgs[revel.CurrentLocaleViewArg] = lang
+	c.Request.Locale = lang
 	c.ViewArgs["siteUrl"] = configService.GetSiteUrl()
 
 	c.ViewArgs["blogUrl"] = configService.GetBlogUrl()

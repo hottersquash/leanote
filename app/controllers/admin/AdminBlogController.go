@@ -14,6 +14,7 @@ type AdminBlog struct {
 
 // admin 主页
 func (c AdminBlog) Index(sorter, keywords string) revel.Result {
+	c.SetLocale()
 	pageNumber := c.GetPage()
 	sorterField, isAsc := c.getSorter("CreatedTime", false, []string{"title", "userId", "isRecommed", "createdTime"})
 	pageInfo, blogs := blogService.ListAllBlogs("", "", keywords, false, pageNumber, userPageSize, sorterField, isAsc)
