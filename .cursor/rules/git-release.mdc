@@ -1,0 +1,31 @@
+---
+description: Git tag → GitHub Release (linux amd64) conventions for leanote
+alwaysApply: true
+---
+
+# Release tagging
+
+Pushing a version tag to GitHub builds and publishes a **linux/amd64** release asset via `.github/workflows/release.yml`.
+
+## Tag format
+
+- Use semver tags: `vX.Y.Z` (example: `v2.8.0`)
+- Only tags matching `v*` trigger the release workflow
+- Prefer tagging a commit that is already on the release branch you intend to ship
+
+```bash
+git tag -a v2.8.0 -m "v2.8.0"
+git push origin v2.8.0
+```
+
+## Artifact
+
+- Name: `leanote-linux-amd64-<version>.bin.tar.gz` (`v` prefix stripped from the tag in the filename)
+- Built by `sh/package-release.sh` with `revel package` (prod)
+- Attached to the GitHub Release for that tag
+
+## Do not
+
+- Do not create tags named without `v` if you expect CI to run (e.g. `2.8.0` alone will not match)
+- Do not hand-edit release assets that CI already published; retag / cut a new patch version instead
+- Do not add other GOOS/GOARCH targets unless the workflow and package script are updated together
