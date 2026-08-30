@@ -115,12 +115,17 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	var resultCode = 0      // 1表示正常
 	var resultMsg = "error" // 错误信息
 	var Ok = false
+	var publicUrlOut = ""
 
 	defer func() {
 		re.Id = fileId // 只是id, 没有其它信息
 		re.Code = resultCode
 		re.Msg = resultMsg
 		re.Ok = Ok
+		// Keep cloud URL even if other fields are rewritten by this defer.
+		if publicUrlOut != "" {
+			re.Url = publicUrlOut
+		}
 	}()
 
 	// file, handel, err := c.Request.FormFile("file")
@@ -143,7 +148,6 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	// defer file.Close()
 
 	// data, err := ioutil.ReadAll(file)
-	
 
 	// 生成上传路径
 	newGuid := NewGuid()
@@ -216,6 +220,10 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 			resultMsg = err.Error()
 			return re
 		}
+		if publicUrl == "" {
+			publicUrl = imageStorageService.PublicURL(objectKey)
+		}
+		publicUrlOut = publicUrl
 
 		fileInfo := info.File{Name: filename,
 			Title: handel.Filename,
@@ -231,7 +239,7 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 		if Ok {
 			resultCode = 1
 			resultMsg = "Upload Success!"
-			re.Url = publicUrl
+			re.Url = publicUrlOut
 		}
 
 		fileInfo.Path = ""
@@ -307,6 +315,11 @@ func (c File) OutputImage(noteId, fileId string) revel.Result {
 	if path == "" {
 		return c.RenderText("")
 	}
+	if imageStorageService.IsRemoteObjectPath(path) {
+		if publicUrl := imageStorageService.PublicURL(path); publicUrl != "" {
+			return c.Redirect(publicUrl)
+		}
+	}
 	fn := revel.BasePath + "/" + strings.TrimLeft(path, "/")
 	file, _ := os.Open(fn)
 	return c.RenderFile(file, revel.Inline) // revel.Attachment
@@ -355,6 +368,9 @@ func (c File) CopyHttpImage(src string) revel.Result {
 		id := bson.NewObjectId()
 		fileInfo.FileId = id
 		re.Id = id.Hex()
+		if publicUrl == "" {
+			publicUrl = imageStorageService.PublicURL(objectKey)
+		}
 		re.Url = publicUrl
 		re.Ok, re.Msg = fileService.AddImage(fileInfo, "", c.GetUserId(), true)
 		return c.RenderJSON(re)

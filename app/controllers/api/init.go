@@ -27,6 +27,7 @@ var attachService *service.AttachService
 var configService *service.ConfigService
 var emailService *service.EmailService
 var sessionService *service.SessionService
+var imageStorageService *service.ImageStorageService
 
 var pageSize = 1000
 var defaultSortField = "UpdatedTime"
@@ -91,9 +92,9 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 		// 从session中获取, api/file/getImage, api/file/getAttach, api/file/getAllAttach
 		// 客户端
 		userIdI, _ := c.Session["UserId"]
-        if userIdI != nil {
-            userId = userIdI.(string)
-        }
+		if userIdI != nil {
+			userId = userIdI.(string)
+		}
 	}
 	c.Session["_userId"] = userId
 
@@ -144,4 +145,5 @@ func InitService() {
 	configService = service.ConfigS
 	emailService = service.EmailS
 	sessionService = service.SessionS
+	imageStorageService = service.ImageStorageS
 }

@@ -38,6 +38,68 @@ func (this *ImageStorageService) IsRemoteEnabled() bool {
 	return provider != "" && provider != "local"
 }
 
+// IsRemoteObjectPath reports whether a stored File.Path is a cloud object key
+// (as opposed to a local files/ or public/ path).
+func (this *ImageStorageService) IsRemoteObjectPath(path string) bool {
+	path = strings.TrimLeft(strings.TrimSpace(path), "/")
+	if path == "" {
+		return false
+	}
+	if strings.HasPrefix(path, "files/") || strings.HasPrefix(path, "public/") {
+		return false
+	}
+	// Absolute local paths are not remote object keys.
+	if strings.HasPrefix(path, "/") || strings.Contains(path, ":\\") {
+		return false
+	}
+	return this.IsRemoteEnabled()
+}
+
+// PublicURL builds the browser-facing URL for a cloud object key.
+func (this *ImageStorageService) PublicURL(objectKey string) string {
+	objectKey = strings.TrimLeft(strings.TrimSpace(objectKey), "/")
+	if objectKey == "" {
+		return ""
+	}
+	cfg := this.config()
+	objectUrl := this.objectURL(cfg, objectKey)
+	return buildPublicUrl(cfg, objectUrl, objectKey)
+}
+
+func (this *ImageStorageService) objectURL(cfg imageStorageConfig, objectKey string) string {
+	escapedKey := escapeObjectKey(objectKey)
+	switch cfg.Provider {
+	case "huawei_obs", "huawei", "obs":
+		if cfg.Bucket == "" || cfg.Endpoint == "" {
+			return ""
+		}
+		return "https://" + cfg.Bucket + "." + cfg.Endpoint + "/" + escapedKey
+	case "aliyun_oss", "aliyun":
+		endpoint, err := resolveAliyunEndpoint(cfg)
+		if err != nil || cfg.Bucket == "" {
+			return ""
+		}
+		return "https://" + cfg.Bucket + "." + endpoint + "/" + escapedKey
+	case "tencent_cos", "tencent":
+		host, err := resolveTencentHost(cfg)
+		if err != nil {
+			return ""
+		}
+		return "https://" + host + "/" + escapedKey
+	case "aws_s3", "aws", "s3":
+		host, _, err := resolveAwsHostAndRegion(cfg)
+		if err != nil {
+			return ""
+		}
+		return "https://" + host + "/" + escapedKey
+	default:
+		if cfg.PublicBaseUrl != "" {
+			return cfg.PublicBaseUrl + "/" + escapedKey
+		}
+		return ""
+	}
+}
+
 func (this *ImageStorageService) PutNoteImage(userId, filename string, data []byte) (publicUrl, objectKey string, size int64, err error) {
 	cfg := this.config()
 	if cfg.Provider == "" || cfg.Provider == "local" {

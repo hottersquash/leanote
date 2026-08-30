@@ -178,7 +178,7 @@ define('editor_drop_paste', ['fileupload'], function() {
 	            if (data.result.Ok == true) {
 	                data.context.remove();
 	                // life
-	                var data2 = {src: data.result.Url || ("/api/file/getImage?fileId=" + data.result.Id)}
+	                var data2 = {src: data.result.Url || data.result.url || ("/api/file/getImage?fileId=" + data.result.Id)}
 	                insertImage(data2);
 	            } else {
 	                data.context.empty();
@@ -378,13 +378,14 @@ define('editor_drop_paste', ['fileupload'], function() {
 	            if (data.result.Ok == true) {
 		    		// Prefer cloud/CDN URL from Image Storage; fall back to local fileId serve path
 		    		var re = data.result;
-					var src = re.Url || ("/api/file/getImage?fileId=" + re.Id);
+					var src = re.Url || re.url || ("/api/file/getImage?fileId=" + re.Id);
 					var note = curNote || Note.getCurNote();
+					var alt = (typeof getMsg === 'function' && getMsg('enter image description here')) || 'title';
 
 					if(note && !note.IsMarkdown) {
 						data.process && data.process.replace(src);
 					} else {
-						MD && MD.insertLink(src, 'title', true);
+						MD && MD.insertLink(src, alt, true);
 					}
 				
 	            } else {
