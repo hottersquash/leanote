@@ -155,11 +155,11 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	userId := c.GetUserId()
 
 	if from == "logo" || from == "blogLogo" {
-		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/logo"
+		fileUrlPath = "files/upload/" + Digest3(userId) + "/" + userId + "/images/logo"
 	} else if from == "blogBg" {
-		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/blog_bg"
+		fileUrlPath = "files/upload/" + Digest3(userId) + "/" + userId + "/images/blog_bg"
 	} else if from == "lockWallpaper" {
-		fileUrlPath = "public/upload/" + Digest3(userId) + "/" + userId + "/images/lock_wallpaper"
+		fileUrlPath = "files/upload/" + Digest3(userId) + "/" + userId + "/images/lock_wallpaper"
 	} else {
 		// fileUrlPath = "files/" + Digest3(userId) + "/" + userId + "/" + Digest2(newGuid) + "/images"
 		fileUrlPath = "files/" + GetRandomFilePath(userId, newGuid) + "/images"

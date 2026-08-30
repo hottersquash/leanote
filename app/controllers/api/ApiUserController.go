@@ -117,7 +117,7 @@ func (c ApiUser) uploadImage() (ok bool, msg, url string) {
 	// }
 	// defer file.Close()
 	// 生成上传路径
-	fileUrlPath = "public/upload/" + c.getUserId() + "/images/logo"
+	fileUrlPath = "files/upload/" + c.getUserId() + "/images/logo"
 
 	dir := revel.BasePath + "/" + fileUrlPath
 	err := os.MkdirAll(dir, 0755)

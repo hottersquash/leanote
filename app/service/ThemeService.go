@@ -87,13 +87,13 @@ func (this *ThemeService) getDefaultTheme(style string) info.Theme {
 
 // 用户的主题路径设置
 func (this *ThemeService) getUserThemeBasePath(userId string) string {
-	return revel.BasePath + "/public/upload/" + Digest3(userId) + "/" + userId + "/themes"
+	return revel.BasePath + "/files/upload/" + Digest3(userId) + "/" + userId + "/themes"
 }
 func (this *ThemeService) getUserThemePath(userId, themeId string) string {
 	return this.getUserThemeBasePath(userId) + "/" + themeId
 }
 func (this *ThemeService) getUserThemePath2(userId, themeId string) string {
-	return "public/upload/" + Digest3(userId) + "/" + userId + "/themes/" + themeId
+	return "files/upload/" + Digest3(userId) + "/" + userId + "/themes/" + themeId
 }
 
 // 新建主题
@@ -407,14 +407,15 @@ func (this *ThemeService) ExportTheme(userId, themeId string) (ok bool, path str
 	// 验证路径, 别把整个项目打包了
 	// Log(theme.Path)
 	if theme.Path == "" ||
-		(!strings.HasPrefix(theme.Path, "public/upload") &&
+		(!strings.HasPrefix(theme.Path, "files/upload") &&
+			!strings.HasPrefix(theme.Path, "public/upload") &&
 			!strings.HasPrefix(theme.Path, "public/blog/themes")) ||
 		strings.Contains(theme.Path, "..") {
 		return
 	}
 
 	sourcePath := revel.BasePath + "/" + theme.Path
-	targetPath := revel.BasePath + "/public/upload/" + userId + "/tmp"
+	targetPath := revel.BasePath + "/files/upload/" + userId + "/tmp"
 	err := os.MkdirAll(targetPath, 0755)
 	if err != nil {
 		// Log(err)
@@ -432,11 +433,11 @@ func (this *ThemeService) ExportTheme(userId, themeId string) (ok bool, path str
 }
 
 // 导入主题
-// path == /llllllll/..../public/upload/.../aa.zip, 绝对路径
+// path == /llllllll/..../files/upload/.../aa.zip, 绝对路径
 func (this *ThemeService) ImportTheme(userId, path string) (ok bool, msg string) {
 	themeIdO := bson.NewObjectId()
 	themeId := themeIdO.Hex()
-	targetPath := this.getUserThemePath(userId, themeId) // revel.BasePath + "/public/upload/" + userId + "/themes/" + themeId
+	targetPath := this.getUserThemePath(userId, themeId) // revel.BasePath + "/files/upload/" + userId + "/themes/" + themeId
 
 	err := os.MkdirAll(targetPath, 0755)
 	if err != nil {

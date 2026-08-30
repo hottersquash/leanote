@@ -97,13 +97,12 @@ func (this *FileService) DeleteImage(userId, fileId string) (bool, string) {
 			// delete image
 			// TODO
 			file.Path = strings.TrimLeft(file.Path, "/")
-			var err error
-			if strings.HasPrefix(file.Path, "upload") {
-				Log(file.Path)
-				err = os.Remove(revel.BasePath + "/public/" + file.Path)
-			} else {
-				err = os.Remove(revel.BasePath + "/" + file.Path)
+			relPath := LocalAssetRelPath(file.Path)
+			if relPath == "" {
+				return false, "delete file error!"
 			}
+			Log(relPath)
+			err := os.Remove(revel.BasePath + "/" + relPath)
 			if err == nil {
 				return true, ""
 			}

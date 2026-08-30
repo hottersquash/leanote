@@ -147,6 +147,25 @@ func IsDirExists(path string) bool {
 	return false
 }
 
+// LocalAssetRelPath maps a browser URL/path to a project-relative filesystem path.
+// User uploads live under files/upload; legacy uploads may be under public/upload or /upload.
+func LocalAssetRelPath(urlPath string) string {
+	urlPath = strings.TrimSpace(urlPath)
+	urlPath = strings.TrimLeft(urlPath, "/")
+	if urlPath == "" {
+		return ""
+	}
+	if strings.HasPrefix(urlPath, "files/") || strings.HasPrefix(urlPath, "public/") {
+		return urlPath
+	}
+	// Legacy short URL /upload/... is served from public/upload.
+	if strings.HasPrefix(urlPath, "upload/") {
+		return "public/" + urlPath
+	}
+	// Built-in static assets under public/ (images/, css/, ...).
+	return "public/" + urlPath
+}
+
 // 获得文件str内容
 func GetFileStrContent(path string) string {
 	fileBytes, err := ioutil.ReadFile(path)

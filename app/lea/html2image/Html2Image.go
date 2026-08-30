@@ -523,7 +523,7 @@ func (this *Html2Image) InsertCode(n *html.Node) {
 // 插入图片
 // 这个path应该是url,
 // http://abc.com/a.gif 需要先下载
-// 或 /upload/a.gif
+// 或 /files/upload/a.gif、/upload/a.gif
 func (this *Html2Image) InsertImage(path string, needTrans bool, width uint) {
 	if path == "" {
 		return;
@@ -537,7 +537,7 @@ func (this *Html2Image) InsertImage(path string, needTrans bool, width uint) {
 			return
 		}
 	} else {
-		path = revel.BasePath + "/public/" + path
+		path = revel.BasePath + "/" + lea.LocalAssetRelPath(path)
 	}
 
 	// 需要转换, logo不需要转换

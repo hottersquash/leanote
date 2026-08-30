@@ -10,7 +10,7 @@ import (
 
 // overwite revel RouterFilter
 // /api/user/Info => ApiUser.Info()
-var staticPrefix = []string{"/public", "/favicon.ico", "/css", "/js", "/images", "/tinymce", "/upload", "/fonts"}
+var staticPrefix = []string{"/public", "/favicon.ico", "/css", "/js", "/images", "/tinymce", "/upload", "/files/upload", "/fonts"}
 
 func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 	// 补全controller部分

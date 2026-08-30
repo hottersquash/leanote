@@ -470,7 +470,7 @@ func (c MemberBlog) ImportTheme() revel.Result {
 	// defer file.Close()
 	// 生成上传路径
 	userId := c.GetUserId()
-	dir := revel.BasePath + "/public/upload/" + userId + "/tmp"
+	dir := revel.BasePath + "/files/upload/" + userId + "/tmp"
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		re.Msg = fmt.Sprintf("%v", err)

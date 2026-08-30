@@ -122,6 +122,8 @@ GET     /css/*filepath                       Static.Serve("public/css")
 GET     /fonts/*filepath                       Static.Serve("public/fonts")
 GET     /tinymce/*filepath                       Static.Serve("public/tinymce")
 #GET     /plugins/*filepath                       Static.Serve("public/tinymce/plugins")
+# New uploads live under files/upload; keep /upload and /public/upload for legacy files.
+GET     /files/upload/*filepath                 Static.Serve("files/upload")
 GET     /upload/*filepath                       Static.Serve("public/upload")
 
 # member
